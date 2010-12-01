@@ -11,12 +11,35 @@ name = 'bladder_x'
 host = 'irc.esper.net'
 port = 6667
 
+local success, msg = pcall(require, "password")
+password = success and msg or nil
+
 poll_time = 5.0 -- time interval for poll
 
 feed_url = 'http://www.saltw.net/index.php?type=rss;action=.xml'
 channels = {'#saltw'}
 
+-- host = 'localhost'
+-- feed_url = 'http://localhost/smf/index.php?type=rss;action=.xml'
 
+local colors = {
+ white  = 0,
+ black  = 1,
+ blue   = 2,
+ green  = 3,
+ red    = 4,
+ brown  = 5,
+ purple = 6,
+ orange = 7,
+ yellow = 8,
+ lime   = 9,
+ teal   = 10,
+ aqua   = 11,
+ royal  = 12,
+ pink   = 13,
+ grey   = 14,
+ silver = 15
+}
 
 
 
@@ -60,7 +83,7 @@ local function http_request(url, method)
 		error("Failed to open connection to "..feed)
 	end
 
-	print('+++ Requesting ', url.path..'?'..url.query)
+	-- print('+++ Requesting ', url.path..'?'..url.query)
 	http:send(method..' '..url.path..'?'..url.query..' HTTP/1.1\r\n')
 	http:send('host: '..url.host..'\r\n\r\n')
 	return http
@@ -153,6 +176,12 @@ local tasks = {
 		name = 'Join channels',
 		time = 1.0,
 		run = function(self, irc)
+
+			-- ident
+			if password then
+				irc:message_to('NickServ', 'IDENTIFY '..password)
+			end
+
 			for _,channel in ipairs(channels) do
 				irc:join(channel)
 			end
@@ -166,7 +195,7 @@ local tasks = {
 		run = function(self, irc)
 			if self.running then return true end
 			self.running = true
-			add_listener(http_request(feed_url), http_reader, function(client, response, headers)
+			add_listener(http_request(feed_url), http_reader, function(sck, response, headers)
 				self.running = false
 				local posts = feed.parse(response, headers.Date)
 				if self.last_date then
@@ -174,7 +203,9 @@ local tasks = {
 						if post.date == self.last_date then break end
 						print('+++ New post', post.title, post.link)
 						-- irc.client:send("PRIVMSG #leafo :New Post [ "..post.title.." ] [ "..post.link.." ]\r\n")
-						irc:message("New Post [ "..post.title.." ] [ "..post.link.." ]\r\n")
+						irc:me(irc:color(colors.red, 'New post')..
+							irc:color(colors.green, " [ ")..post.title..irc:color(colors.green," ] [ ")..
+							post.link..irc:color(colors.green, " ]").."\r\n")
 					end
 				end
 				self.last_date = posts[1].date
@@ -209,18 +240,29 @@ function remove_listener(client)
 	table.remove(listening, ir)
 end
 
-function Irc(sck)
+local function Irc(sck)
 	return {
 		client = sck,
 		channels = {},
 		message = function(self, msg)
 			for _,channel in ipairs(self.channels) do
-				sck:send('PRIVMSG '..channel..' :'..msg)
+				sck:send('PRIVMSG '..channel..' :'..msg..'\r\n')
 			end
+		end,
+		message_to = function(self, who, msg)
+			sck:send('PRIVMSG '..who..' :'..msg..'\r\n')
+		end,
+		me = function(self, msg)
+			local delim = string.char(0x01)
+			self:message(table.concat({delim, 'ACTION ', msg, delim}))
 		end,
 		join = function(self, channel)
 			sck:send("JOIN "..channel.."\r\n")
 			table.insert(self.channels, channel)
+		end,
+		color = function(self, color, msg) 
+			local delim = string.char(0x03)
+			return table.concat({delim, color, msg, delim})
 		end
 	}
 end
@@ -260,7 +302,7 @@ while true do
 	for i, task in ipairs(tasks) do
 		task.elapsed = (task.elapsed or 0) + elapsed
 		if task.elapsed >= task.time then
-			print("+++ Running task", task.name)
+			-- print("+++ Running task", task.name)
 			if not task:run(irc) then table.insert(completed, i) end
 			task.elapsed = 0
 		end
