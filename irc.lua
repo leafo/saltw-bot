@@ -16,11 +16,11 @@ password = success and msg or nil
 
 poll_time = 5.0 -- time interval for poll
 
-feed_url = 'http://www.saltw.net/index.php?type=rss;action=.xml'
-channels = {'#saltw'}
+feed_url = 'http://www.saltw.net/index.php?action=.xml'
+channels = { '#saltw' }
 
 -- host = 'localhost'
--- feed_url = 'http://localhost/smf/index.php?type=rss;action=.xml'
+-- feed_url = 'http://localhost/smf/index.php?action=.xml'
 
 local colors = {
  white  = 0,
@@ -190,25 +190,32 @@ local tasks = {
 	{
 		name = 'Scrape forums',
 		time = poll_time or 10.0,
-		last_date = nil,
+		last_time = nil,
 		running = false,
 		run = function(self, irc)
 			if self.running then return true end
 			self.running = true
 			add_listener(http_request(feed_url), http_reader, function(sck, response, headers)
 				self.running = false
-				local posts = feed.parse(response, headers.Date)
-				if self.last_date then
+				local posts = feed.parse(response)
+				if self.last_time then
 					for _,post in ipairs(posts) do
-						if post.date == self.last_date then break end
-						print('+++ New post', post.title, post.link)
-						-- irc.client:send("PRIVMSG #leafo :New Post [ "..post.title.." ] [ "..post.link.." ]\r\n")
-						irc:me(irc:color(colors.red, 'New post')..
-							irc:color(colors.green, " [ ")..post.title..irc:color(colors.green," ] [ ")..
+						if post.time == self.last_time then break end
+						print('+++ New post', post.subject, post.link)
+						
+						local post_type = 'topic'
+						if post.subject:match("^Re: ") then
+							post.subject = post.subject:sub(5)
+							post_type = 'reply'
+						end
+
+						irc:me(irc:color(colors.red, 'New '..post_type..': ')..
+							post.subject..irc:color(colors.green," [ "..irc:color(colors.grey, 'by').." ")..
+							post.poster.name..irc:color(colors.green, " : ")..
 							post.link..irc:color(colors.green, " ]").."\r\n")
 					end
 				end
-				self.last_date = posts[1].date
+				if #posts > 0 then self.last_time = posts[1].time end
 			end)
 			return true
 		end
