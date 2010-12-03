@@ -9,6 +9,11 @@
     lua irc.lua
 
 In order to have the bot identify with server create a file
-called `password.lua` and make it look like this:
+called `config.lua` and make it return a table with password field:
 
-    return "my-password"
+    return  {
+		password: "my-password"
+	}
+
+Other settings can also be optionally set in `config.lua`. See the top of
+`irc.lua` to see what can be overwritten.
