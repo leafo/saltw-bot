@@ -1,6 +1,6 @@
 
 require "lxp.lom"
--- require "util"
+require "util"
 require "date"
 
 module("feed", package.seeall)
@@ -80,9 +80,11 @@ function parse(document_text, now_date_string)
 	p:close()
 
 	for _,post in ipairs(posts) do
-		local time = post.time:match('Today at (.*)')
-		if time then
-			post.time = date(date():fmt('%F ')..time)
+		local day, time = post.time:match('(%w*) at (.*)')
+		if day then
+			local d = date()
+			if day == 'Yesterday' then d:adddays(-1) end
+			post.time = date(d:fmt('%F ')..time)
 		else
 			post.time = date(post.time)
 		end
@@ -98,4 +100,4 @@ function parse(document_text, now_date_string)
 	return posts
 end
 
--- print(dump(parse(io.open('out3.xml'):read('*a'))))
+-- print(dump(parse(io.open('out2.xml'):read('*a'))))
