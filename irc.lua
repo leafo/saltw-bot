@@ -4,23 +4,26 @@
 
 require "socket"
 require "socket.url"
--- require "util"
+require "util"
 require "feed"
 
-name = 'bladder_x'
-host = 'irc.esper.net'
-port = 6667
+local config = get_config(... or 'config', {
+	name = 'bladder_x',
+	host = 'irc.esper.net',
+	port = 6667,
 
-local success, msg = pcall(require, "password")
-password = success and msg or nil
+	plugins = { 'stats' },
 
-poll_time = 5.0 -- time interval for poll
+	feed_url = 'http://www.saltw.net/index.php?action=.xml',
+	channels = { '#saltw' },
 
-feed_url = 'http://www.saltw.net/index.php?action=.xml'
-channels = { '#saltw' }
+	-- host = 'localhost',
+	-- feed_url = 'http://localhost/smf/index.php?action=.xml',
 
--- host = 'localhost'
--- feed_url = 'http://localhost/smf/index.php?action=.xml'
+	poll_time = 5.0, -- time interval for poll
+})
+
+local plugins = {} -- loaded plugins
 
 local colors = {
  white  = 0,
@@ -42,16 +45,15 @@ local colors = {
 }
 
 
-
-local client = socket.connect(host, port)
+local client = socket.connect(config.host, config.port)
 if not client then
 	print "could not connect to server"
 	return
 end
 print "connected"
 
-client:send("NICK "..name.."\r\n")
-client:send("USER "..(name.." "):rep(3)..":Bildo Bagins\r\n")
+client:send("NICK "..config.name.."\r\n")
+client:send("USER "..(config.name.." "):rep(3)..":Bildo Bagins\r\n")
 
 local function Buffer() 
 	return {
@@ -138,6 +140,19 @@ local function command_responder(client, line)
 		print('+++', 'PONG')
 		return
 	end
+
+	-- dispatch('on_message', something, something)
+	local name, host, channel, msg = line:match(':([^!]+)!([^%s]+) PRIVMSG (#[%w_]+) :(.*)')
+	if name then
+		for _,plugin in ipairs(plugins) do
+			if plugin.on_message then
+				local success, msg = pcall(plugin.on_message, name, channel, msg, host) 
+				if not success then
+					print("+++ Plugin error", msg)
+				end
+			end
+		end
+	end
 end
 
 local function http_reader(client)
@@ -178,24 +193,24 @@ local tasks = {
 		run = function(self, irc)
 
 			-- ident
-			if password then
-				irc:message_to('NickServ', 'IDENTIFY '..password)
+			if config.password then
+				irc:message_to('NickServ', 'IDENTIFY '..config.password)
 			end
 
-			for _,channel in ipairs(channels) do
+			for _,channel in ipairs(config.channels) do
 				irc:join(channel)
 			end
 		end
 	},
 	{
 		name = 'Scrape forums',
-		time = poll_time or 10.0,
+		time = config.poll_time,
 		last_time = nil,
 		running = false,
 		run = function(self, irc)
 			if self.running then return true end
 			self.running = true
-			add_listener(http_request(feed_url), http_reader, function(sck, response, headers)
+			add_listener(http_request(config.feed_url), http_reader, function(sck, response, headers)
 				self.running = false
 				local posts = feed.parse(response)
 				if self.last_time then
@@ -275,6 +290,20 @@ local function Irc(sck)
 end
 
 add_listener(client, command_reader, command_responder)
+
+function load_plugins()
+	plugins = {}
+	for _, pname in ipairs(config.plugins) do
+		local success, plugin = pcall(require, pname)
+		if success then
+			table.insert(plugins, plugin)
+		else
+			print("+++ Failed to load plugin:", pname)
+		end
+	end
+end
+
+load_plugins()
 
 local time = socket.gettime()
 local irc = Irc(client)
