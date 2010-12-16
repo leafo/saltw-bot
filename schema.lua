@@ -15,7 +15,8 @@ local tables = {
 		random_message varchar(1024),
 
 		PRIMARY KEY (id),
-		INDEX (name)
+		UNIQUE (name),
+		INDEX (message_count)
 	]]
 }
 

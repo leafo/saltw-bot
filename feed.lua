@@ -35,6 +35,7 @@ function parse(document_text, now_date_string)
 	local capture = {
 		'subject', 'link', 'date', 'time',
 		poster = { 'name', 'link' },
+		board = { 'name' },
 	}
 
 	local p = lxp.new{
@@ -94,6 +95,18 @@ function parse(document_text, now_date_string)
 		if mid then
 			post.link = 'http://saltw.net/msg'..mid
 		end
+
+
+		local entities = {
+			amp = '&',
+			gt = '>',
+			lt = '<',
+		}
+
+		post.subject = post.subject:gsub('&(.-);', function(tag) 
+			if entities[tag] then return entities[tag] end
+			return '&'..tag..';'
+		end)
 
 	end
 

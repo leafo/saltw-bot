@@ -1,7 +1,4 @@
 
--- how many times have i done this before
--- you can not yield if a for loop
-
 require "socket"
 require "socket.url"
 require "util"
@@ -11,6 +8,8 @@ local config = get_config(... or 'config', {
 	name = 'bladder_x',
 	host = 'irc.esper.net',
 	port = 6667,
+
+	message_prefix = 'New ', -- used for New reply, New post
 
 	plugins = { 'stats' },
 
@@ -82,7 +81,7 @@ local function http_request(url, method)
 
 	local http = socket.connect(url.host, url.port or 80)
 	if not http then
-		error("Failed to open connection to "..feed)
+		error("Failed to open connection to "..url.host)
 	end
 
 	-- print('+++ Requesting ', url.path..'?'..url.query)
@@ -214,20 +213,29 @@ local tasks = {
 				self.running = false
 				local posts = feed.parse(response)
 				if self.last_time then
+					-- print("last time: ", tostring(self.last_time))
 					for _,post in ipairs(posts) do
-						if post.time == self.last_time then break end
+						-- print(tostring(post.time), post.time == self.last_time, post.time < self.last_time, post.time > self.last_time)
+						-- print(post.time <= self.last_time, post.time >= self.last_time)
+
+						-- the date <= operator is broken apparently
+						if post.time < self.last_time or post.time == self.last_time then break end
 						print('+++ New post', post.subject, post.link)
 						
 						local post_type = 'topic'
 						if post.subject:match("^Re: ") then
 							post.subject = post.subject:sub(5)
-							post_type = 'reply'
+							post_type = 'reply in'
 						end
 
-						irc:me(irc:color(colors.red, 'New '..post_type..': ')..
-							post.subject..irc:color(colors.green," [ "..irc:color(colors.grey, 'by').." ")..
-							post.poster.name..irc:color(colors.green, " : ")..
-							post.link..irc:color(colors.green, " ]").."\r\n")
+						irc:me(irc:color(colors.grey, config.message_prefix..post_type..' ')..
+							irc:color(colors.orange, post.subject)..irc:color(colors.grey, ' ['..post.board.name..'] by ')..
+							irc:color(colors.green, post.poster.name)..irc:color(colors.grey, ' > ')..post.link)
+
+						-- irc:me(irc:color(colors.red, config.message_prefix..post_type..': ')..
+						-- 	post.subject..irc:color(colors.green," [ "..irc:color(colors.grey, 'by').." ")..
+						-- 	post.poster.name..irc:color(colors.green, " : ")..
+						-- 	post.link..irc:color(colors.green, " ]").."\r\n")
 					end
 				end
 				if #posts > 0 then self.last_time = posts[1].time end
@@ -339,7 +347,13 @@ while true do
 		task.elapsed = (task.elapsed or 0) + elapsed
 		if task.elapsed >= task.time then
 			-- print("+++ Running task", task.name)
-			if not task:run(irc) then table.insert(completed, i) end
+			local success, stay_alive = pcall(task.run, task, irc)	
+			if success and not stay_alive then
+				print("+++ Removing task", task.name)
+				table.insert(completed, i)
+			elseif not success then
+				print("+++ Task failed", stay_alive)
+			end
 			task.elapsed = 0
 		end
 	end

@@ -1,5 +1,5 @@
 -- connect to database
-function db(dbname, user, pass) 
+function db(dbname, user, pass, record_queries) 
 	require "luasql.mysql"
 
 	local queries = {}
@@ -9,7 +9,9 @@ function db(dbname, user, pass)
 		conn = conn,
 		select = function(statement, ...)
 			if ... then statement = statement:format(...) end
-			table.insert(queries, 'select '..statement)
+			if record_queries then
+				table.insert(queries, 'select '..statement)
+			end
 			local c = assert(conn:execute("select " .. statement))
 			local row = {}
 			local n = 0
@@ -20,7 +22,9 @@ function db(dbname, user, pass)
 		end,
 		execute = function(query, ...)
 			if ... then query = query:format(...) end
-			table.insert(queries, query)
+			if record_queries then
+				table.insert(queries, query)
+			end
 			return assert(conn:execute(query))
 		end,
 		escape = function(str)
