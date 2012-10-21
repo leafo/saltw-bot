@@ -174,10 +174,10 @@ class Irc
   message_to: (who, msg) =>
     @socket\send 'PRIVMSG '..who..' :'..msg..'\r\n'
 
-  me: (msg) =>
+  me: (msg, channel=nil) =>
     msg = table.concat msg if type(msg) == "table"
     delim = string.char 0x01
-    self\message table.concat { delim, 'ACTION ', msg, delim }
+    self\message table.concat({ delim, 'ACTION ', msg, delim }), channel
 
   color: (color, msg) =>
     delim = string.char 0x03
@@ -363,6 +363,24 @@ irc\add_message_handler (irc, name, channel, msg) ->
     HTTPRequest\get url, (body, headers) ->
       if body
         irc\message body\match("<title>(.-)</title>"), channel
+
+
+-- get the title of a youtube
+irc\add_message_handler (irc, name, channel, msg) ->
+  print "matching...", msg
+  if url = msg\match "www%.youtube%.com/watch%?v=[%w_-]+"
+    print url
+    HTTPRequest\get url, (body, headers) ->
+      if body
+        title = body\match("<title>(.-)</title>")
+        if match = title\match "^(.-) %- YouTube$"
+          title = match
+
+        with irc
+          \me {
+            \color "grey",    "[YouTube] "
+            title
+          }, channel
 
 event_loop\run!
 
