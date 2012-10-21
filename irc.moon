@@ -367,9 +367,7 @@ irc\add_message_handler (irc, name, channel, msg) ->
 
 -- get the title of a youtube
 irc\add_message_handler (irc, name, channel, msg) ->
-  print "matching...", msg
   if url = msg\match "www%.youtube%.com/watch%?v=[%w_-]+"
-    print url
     HTTPRequest\get url, (body, headers) ->
       if body
         title = body\match("<title>(.-)</title>")
