@@ -44,17 +44,19 @@ class Stats extends Datastore
     {
       name: "Publish stats"
       time: 10
-      intval: config.stats_update_tiime
+      interval: config.stats_update_time
       action: ->
         messages = [r for r in @db\nrows "select * from messages"]
         return if #messages == 0
-        print "Sending #{#messages} messages"
+        print "Sending #{#messages} messages to #{config.stats_url}"
 
         dump = json.encode [r for r in @db\nrows "select * from messages"]
         HTTPRequest\post config.stats_url, dump, (res, headers) ->
           if res == "ok"
             @exec [[ drop table messages ]]
             @create_db!
+          else
+            print "Stats server responded:", res
     }
 
 

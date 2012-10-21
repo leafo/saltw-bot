@@ -27,7 +27,7 @@ config = get_config "config", {
   poll_time: 5.0
 
   stats_url: "http://leafo.net/saltw/"
-  stats_update_tiime: 60*3
+  stats_update_time: 60*3
 }
 
 export ^
@@ -63,7 +63,7 @@ class Reader
           coroutine.yield!
         else
           return byte
-  
+
   get_bytes: (count) =>
     b = Buffer!
     while #b < count
@@ -197,7 +197,7 @@ class HTTPRequest
     http = self url
     http.method = "GET"
     http\send callback
-    
+
   new: (@url, @data=nil) =>
     @headers = {
       "Connection": "close"
@@ -346,7 +346,7 @@ event_loop\add_task {
             \color "grey",    " > "
             post.link
           }
-      
+
 }
 
 event_loop\add_listener irc.reader
