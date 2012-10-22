@@ -1,1 +1,5 @@
-db.conf.php
+www/db.conf.php
+www/style.css
+www/index.js
+.sitegen_cache
+*.sql
