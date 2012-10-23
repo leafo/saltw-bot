@@ -12,3 +12,12 @@ export get_config = (package_name, default) ->
 
   package.loaded.config
 
+entities = { amp: '&', gt: '>', lt: '<' }
+
+export decode_html_entities = (str) ->
+  (str\gsub '&(.-);', (tag) ->
+    if entities[tag]
+      entities[tag]
+    else
+      '&'..tag..';')
+

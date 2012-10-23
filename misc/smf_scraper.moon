@@ -1,5 +1,6 @@
 
 require "lxp.lom"
+require "util"
 
 module "misc", package.seeall
 
@@ -83,12 +84,7 @@ class SMFFeed
       -- shorten link
       if mid = post.link\match '#msg(%d+)'
         post.link = 'http://saltw.net/msg'..mid
-
-      -- unhtml encode some stuff
-      entities = { amp: '&', gt: '>', lt: '<' }
-      post.subject = post.subject\gsub '&(.-);', (tag) ->
-        return entities[tag] if entities[tag]
-        '&'..tag..';'
+      post.subject = decode_html_entities post.subject
 
     posts
 

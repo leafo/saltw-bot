@@ -362,7 +362,8 @@ irc\add_message_handler (irc, name, channel, msg) ->
     url = strip url
     HTTPRequest\get url, (body, headers) ->
       if body
-        irc\message body\match("<title>(.-)</title>"), channel
+        if title = body\match("<title>(.-)</title>"), channel
+          irc\message decode_html_entities title
 
 
 -- get the title of a youtube
@@ -374,9 +375,11 @@ irc\add_message_handler (irc, name, channel, msg) ->
         if match = title\match "^(.-) %- YouTube$"
           title = match
 
+        title = decode_html_entities title
+
         with irc
           \me {
-            \color "grey",    "[YouTube] "
+            \color "grey", "[YouTube] "
             title
           }, channel
 
