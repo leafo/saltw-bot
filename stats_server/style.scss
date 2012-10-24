@@ -1,5 +1,48 @@
 
 body {
-    color: red;
+    font-family: sans-serif;
+    font-size: 13px;
 }
 
+#stats {
+    width: 960px;
+    margin: 0 auto;
+
+    thead {
+        font-weight: bold;
+    }
+
+    td {
+        padding: 4px;
+    }
+
+    .name {
+        text-align: right;
+        max-width: 100px;
+        word-wrap: break-word;
+    }
+
+    .message_count {
+        text-align: center;
+    }
+
+    .last_seen {
+        white-space: nowrap;
+        color: darken(silver, 20%);
+        font-size: 11px;
+    }
+
+}
+
+.footer {
+    width: 960px;
+    margin: 40px auto;
+    border-top: 1px solid lighten(silver, 10%);
+    color: darken(silver, 20%);
+    padding-top: 10px;
+
+    .style {
+        font-style: italic;
+        font-family: serif;
+    }
+}

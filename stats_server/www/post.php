@@ -103,7 +103,9 @@ if ($post) {
 		exit("failed to auth");
 	}
 
-	$data = json_decode($post);
+	@file_put_contents("last_post", $post);
+
+	$data = json_decode(utf8_encode($post)); // quick hack to get around invalid characters, I think...
 
 	$stm = $db->prepare("insert into `user_messages`
 		(`name`, `time`) values (?, ?)");
@@ -128,6 +130,7 @@ if ($post) {
 
 	$m->save_changes();
 
+	@file_put_contents("last_updated", time());
 	echo "ok";
 }
 
