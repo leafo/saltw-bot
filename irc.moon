@@ -287,6 +287,7 @@ class HTTPRequest
         error "Don't know how to read HTTP response"
 
       callback body, header
+      nil
 
 class EventLoop
   new: =>
