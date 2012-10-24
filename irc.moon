@@ -16,6 +16,7 @@ config = get_config "config", {
   name: 'bladder_x'
   host: 'irc.esper.net'
   port: 6667
+  reconnect_time: 15
 
   message_prefix: 'New ', -- used for New reply, New post
 
@@ -49,16 +50,24 @@ class Buffer
 
 -- coroutine based socket reader
 class Reader
-  new: (@socket, fn=nil) =>
+  new: (socket, fn={}) =>
+    @set_socket socket
+
+    if type(fn) == "function"
+      @loop = fn
+    else
+      for k,v in pairs fn
+        @[k] = v
+
+  set_socket: (@socket) =>
     @socket\settimeout 0 -- nonblocking
-    @loop = fn
 
   get_byte: =>
     while true
       byte, err = @socket\receive 1
       switch err
         when "closed"
-          error "socket closed!"
+          coroutine.yield "closed"
         when "timeout"
           coroutine.yield!
         else
@@ -92,6 +101,7 @@ class Reader
   make_coroutine: => coroutine.create self\loop
 
   loop: =>
+  handle_error: (...) => error ...
 
 class Irc
   colors = {
@@ -117,7 +127,24 @@ class Irc
 
   new: (@host, @port) =>
     @message_handlers = {}
+    @connect!
 
+    irc = @
+    @reader = Reader @socket, {
+      loop: =>
+        while true
+          irc\handle_message @get_line!
+
+      handle_error: (msg) =>
+        irc.socket = nil
+        if msg == "closed"
+          log "Disconnected. Reconnecting in #{config.reconnect_time} seconds"
+          irc\reconnect!
+        else
+          error msg
+    }
+
+  connect: =>
     @channels = {}
     @socket = socket.connect @host, @port
     if not @socket
@@ -129,6 +156,7 @@ class Irc
     event_loop\add_task {
       time: 10
       action: ->
+        return unless @socket
         if config.password
           @message_to 'NickServ', 'IDENTIFY '..config.password
 
@@ -136,11 +164,17 @@ class Irc
           @join channel
     }
 
-    irc = @
-    @reader = Reader @socket, =>
-      while true
-        irc\handle_message @get_line!
-
+  reconnect: =>
+    event_loop\add_task {
+      interval: config.reconnect_time
+      action: (task) ->
+        log "Reconnected:", pcall ->
+          log "Trying to reconnect"
+          @connect!
+          @reader\set_socket @socket
+          event_loop\add_listener @reader
+          task.interval = nil -- stop trying to reconnect
+    }
 
   add_message_handler: (handler) =>
     insert @message_handlers, handler
@@ -268,12 +302,14 @@ class EventLoop
   -- }
   add_task: (task) =>
     table.insert @tasks, task
+    task
 
   add_listener: (reader) =>
     socket = reader.socket
     fn = reader\make_coroutine!
+    err_handler = reader\handle_error
 
-    @readers[socket] = fn
+    @readers[socket] = { fn, err_handler }
     insert @listening, socket
 
   remove_listener: (client) =>
@@ -287,22 +323,26 @@ class EventLoop
       readable, writable, err = socket.select @listening, nil, 1
       if err ~= "timeout"
         for socket in *readable
-          co = @readers[socket]
+          co, err_handler = unpack @readers[socket]
           result = { coroutine.resume co }
           success = remove result, 1
           error unpack result unless success
 
-          if coroutine.status(co) == "dead"
+          if result[1] != nil
+            err_handler unpack result
+            @remove_listener socket
+          elseif coroutine.status(co) == "dead"
             @remove_listener socket
 
       -- run the tasks
       time = socket.gettime!
       dt = time - last_time
       last_time = time
+
       @tasks = for task in *@tasks
         task.time = (task.time or task.interval or 0) - dt
         if task.time < 0
-          -- print "Running task:", task.name
+          -- print "++ Running task: #{task} #{task.name} #{task.interval} #{task.time}"
           task\action!
           if task.interval
             task.time += task.interval
