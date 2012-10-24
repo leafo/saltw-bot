@@ -60,7 +60,7 @@ class Reader
         @[k] = v
 
   set_socket: (@socket) =>
-    @socket\settimeout 0 -- nonblocking
+    @socket\settimeout 0
 
   get_byte: =>
     while true
@@ -403,8 +403,8 @@ irc\add_message_handler (irc, name, channel, msg) ->
     url = strip url
     HTTPRequest\get url, (body, headers) ->
       if body
-        if title = body\match("<title>(.-)</title>"), channel
-          irc\message decode_html_entities title
+        if title = body\match("<title>(.-)</title>")
+          irc\message decode_html_entities(title), channel
 
 
 -- get the title of a youtube
