@@ -41,4 +41,6 @@ class Datastore
 
   create_db: => -- : )
 
+nil
+
 

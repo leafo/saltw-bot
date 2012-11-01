@@ -1,63 +1,92 @@
 
 -- this queues the stats, then sends them off somewhere else
 
-import Datastore from require "misc.sqlite"
-
 module "misc.stats2", package.seeall
-require "moon"
 
+require "date"
 json = require "cjson"
 config = require "config"
 
+import insert from table
+
 export ^
 
-class Stats extends Datastore
-  db_name: "saltw_queue.db"
+class MemoryStats
+  new: => @messages = {}
 
-  create_db: =>
-    @exec [[
-      CREATE TABLE IF NOT EXISTS messages (
-        name TEXT, time DATETIME, msg INTEGER
-      )
-    ]]
+  format_date: (d=date(true)) => d\fmt "${iso}"
+  handle_message: (name, msg) => insert @messages, { :name, :msg, time: @format_date! }
+  get_messages: => @messages
+  clear_queue: => @messages = {}
 
-  handle_message: (name, msg) =>
-    @stm [[
-      INSERT INTO messages (name, time, msg)
-      VALUES (?, ?, ?)
-    ]], name, @format_date!, msg
+if false
+  import Datastore from require "misc.sqlite"
+  class SqliteStats extends Datastore
+    db_name: "saltw_queue.db"
 
-  purge_messages: =>
+    create_db: =>
+      @exec [[
+        CREATE TABLE IF NOT EXISTS messages (
+          name TEXT, time DATETIME, msg INTEGER
+        )
+      ]]
 
-  print_queue: =>
-    require "moon"
-    print "queue:"
-    for t in @db\nrows "select * from messages order by time desc"
-      moon.p t
+    handle_message: (name, msg) =>
+      @stm [[
+        INSERT INTO messages (name, time, msg)
+        VALUES (?, ?, ?)
+      ]], name, @format_date!, msg
 
+    get_messages: =>
+      [r for r in @db\nrows "select * from messages"]
+
+    clear_queue: =>
+      @exec [[ drop table messages ]]
+      @create_db!
+
+    print_queue: =>
+      require "moon"
+      print "queue:"
+      for t in @db\nrows "select * from messages order by time desc"
+        moon.p t
+
+
+class Stats extends MemoryStats
   make_handler: =>
     (irc, name, channel, msg, host) ->
-      @handle_message name, msg
+      if msg == "!stats"
+        @send_messages (count) ->
+          irc\message "#{config.stats_public_url} (sent #{count})", channel
+      else
+        @handle_message name, msg
+
+  send_messages: (callback) =>
+    import HTTPRequest from require "main"
+
+    messages = @get_messages!
+    if #messages == 0
+      callback 0 if callback
+      return
+
+    print "Sending #{#messages} messages to #{config.stats_url}"
+
+    dump = json.encode messages
+    HTTPRequest\post config.stats_url, dump, (res, headers) ->
+      if res == "ok"
+        @clear_queue!
+        callback #messages if callback
+      else
+        print "Stats server responded:", res
+
 
   make_task: =>
-    import HTTPRequest from require "main"
-    {
+    @task = {
       name: "Publish stats"
       time: 10
       interval: config.stats_update_time
-      action: ->
-        messages = [r for r in @db\nrows "select * from messages"]
-        return if #messages == 0
-        print "Sending #{#messages} messages to #{config.stats_url}"
-
-        dump = json.encode [r for r in @db\nrows "select * from messages"]
-        HTTPRequest\post config.stats_url, dump, (res, headers) ->
-          if res == "ok"
-            @exec [[ drop table messages ]]
-            @create_db!
-          else
-            print "Stats server responded:", res
+      action: -> @send_messages!
     }
+    @task
 
 
 -- data = Stats!
