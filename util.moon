@@ -18,6 +18,11 @@ export decode_html_entities = (str) ->
   (str\gsub '&(.-);', (tag) ->
     if entities[tag]
       entities[tag]
+    elseif chr = tag\match "#(%d+)"
+      string.char tonumber chr
     else
       '&'..tag..';')
+
+if ... == "test"
+  print decode_html_entities "Welcome&#33;"
 

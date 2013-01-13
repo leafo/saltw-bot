@@ -4,6 +4,8 @@ config = require "config"
 state = require "state"
 json = require "cjson"
 
+require "util"
+
 class IPBFeed
   new: =>
     @last_posts = nil
@@ -36,14 +38,15 @@ class IPBFeed
     "http://saltword.net/p#{post.pid}"
 
   format_message: (irc, post) =>
+    d = decode_html_entities
     post_type = post.new_topic == 0 and "reply in" or "topic"
 
     with irc
       \me {
         \color "grey",    config.message_prefix..post_type..' '
-        \color "orange",  post.title
-        \color "grey",    " ["..post.forum_name.."] by "
-        \color "green",   post.author_name
+        \color "orange",  d(post.title)
+        \color "grey",    " ["..d(post.forum_name).."] by "
+        \color "green",   d(post.author_name)
         \color "grey",    " > "
         @url_for_post post
       }
