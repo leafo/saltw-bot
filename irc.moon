@@ -1,10 +1,7 @@
 
-module "main", package.seeall
-
 require "socket"
 require "socket.url"
 require "util"
-require "misc.smf_scraper"
 
 import insert, remove from table
 
@@ -31,7 +28,8 @@ config = get_config "config", {
   stats_update_time: 60*3
 }
 
-export ^
+smf = require "misc.smf_scraper"
+state = require "state"
 
 -- character buffer
 class Buffer
@@ -154,7 +152,7 @@ class Irc
     @socket\send "USER ".."moon "\rep(3)..":Bildo Bagins\r\n"
 
     event_loop\add_task {
-      time: 10
+      time: 1
       action: ->
         return unless @socket
         if config.password
@@ -216,7 +214,6 @@ class Irc
   color: (color, msg) =>
     delim = string.char 0x03
     table.concat { delim, colors[color] or color, msg, delim }
-
 
 class HTTPRequest
   method: "GET"
@@ -349,7 +346,7 @@ class EventLoop
             task.time += task.interval
             task
           else
-            nil -- removes it
+            continue -- remove the task
         else
           task
 
@@ -358,38 +355,10 @@ event_loop = EventLoop!
 host, port = ...
 irc = Irc host or config.host, port or config.port
 
-event_loop\add_task {
-  name: "Scrape forums"
-  time: 0
-  interval: 5
-  action: =>
-    return if @running
-    @running = true
-    @smf = @smf or misc.SMFFeed!
+for k,v in pairs {:event_loop, :irc, :HTTPRequest}
+  state[k] = v
 
-    HTTPRequest\get config.feed_url, (body) ->
-      @running = false
-      return unless body
-      new_posts = @smf\get_new_posts body
-
-      for post in *new_posts
-        post_type = 'topic'
-        if post.subject\match("^Re: ") then
-          post.subject = post.subject\sub 5
-          post_type = 'reply in'
-
-        with irc
-          \me {
-            \color "grey",    config.message_prefix..post_type..' '
-            \color "orange",  post.subject
-            \color "grey",    " ["..post.board.name.."] by "
-            \color "green",   post.poster.name
-            \color "grey",    " > "
-            post.link
-          }
-
-}
-
+event_loop\add_task smf.make_task!
 event_loop\add_listener irc.reader
 
 require "misc.stats2"

@@ -2,7 +2,8 @@
 require "lxp.lom"
 require "util"
 
-module "misc", package.seeall
+state = require "state"
+config = require "config"
 
 deep_insert = (tbl, stack, value) ->
   for i, name in ipairs stack
@@ -17,8 +18,6 @@ find = (tbl, item) ->
     return true if thing == item
   false
 
-export ^
-
 class SMFFeed
   new: =>
     @recent_posts = nil
@@ -28,8 +27,8 @@ class SMFFeed
     new_posts = {}
     if @recent_posts
       new_posts = for p in *posts
-        if not @recent_posts[p.id]
-          p
+        continue if @recent_posts[p.id]
+        p
 
     @recent_posts = {}
     for p in *posts
@@ -95,4 +94,40 @@ class SMFFeed
 --   require "moon"
 --   for f in *files
 --     moon.p smf\get_new_posts io.open(f)\read"*a"
+
+
+make_task = -> {
+  name: "Scrape forums"
+  time: 0
+  interval: 5
+  action: =>
+    {:irc, :HTTPRequest} = state
+
+    return if @running
+    @running = true
+    @smf = @smf or SMFFeed!
+
+    HTTPRequest\get config.feed_url, (body) ->
+      @running = false
+      return unless body
+      new_posts = @smf\get_new_posts body
+
+      for post in *new_posts
+        post_type = 'topic'
+        if post.subject\match("^Re: ") then
+          post.subject = post.subject\sub 5
+          post_type = 'reply in'
+
+        with irc
+          \me {
+            \color "grey",    config.message_prefix..post_type..' '
+            \color "orange",  post.subject
+            \color "grey",    " ["..post.board.name.."] by "
+            \color "green",   post.poster.name
+            \color "grey",    " > "
+            post.link
+          }
+}
+
+{:SMFFeed, :make_task}
 

@@ -3,9 +3,11 @@
 
 module "misc.stats2", package.seeall
 
+
 require "date"
 json = require "cjson"
 config = require "config"
+state = require "state"
 
 import insert from table
 
@@ -61,7 +63,7 @@ class Stats extends MemoryStats
         @handle_message name, msg
 
   send_messages: (callback) =>
-    import HTTPRequest from require "main"
+    {:HTTPRequest} = state
 
     messages = @get_messages!
     if #messages == 0
