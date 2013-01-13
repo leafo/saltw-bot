@@ -361,9 +361,12 @@ if config.smf_feed_url
   smf = require "misc.smf_scraper"
   event_loop\add_task smf.make_task!
 
+if config.ipb_feed_url
+  ipb = require "misc.ipb_scraper"
+  event_loop\add_task ipb.make_task!
+
 event_loop\add_listener irc.reader
 
-require "misc.stats2"
 stats = misc.stats2.Stats!
 event_loop\add_task stats\make_task!
 irc\add_message_handler stats\make_handler!
