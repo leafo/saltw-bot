@@ -10,8 +10,8 @@ strip = (str) -> str\match "^(.-)%s*$"
 event_loop = nil
 
 config = get_config "config", {
-  name: 'bladder_x'
-  host: 'irc.esper.net'
+  name: 'bladder_x2'
+  host: 'localhost'
   port: 6667
   reconnect_time: 15
 
@@ -21,10 +21,11 @@ config = get_config "config", {
 
   verbose: true
 
-  smf_feed_url: 'http://www.saltw.net/index.php?action=.xml'
+  -- smf_feed_url: "http://localhost/smf/index.php?action=.xml"
+  -- ipb_feed_url: "http://localhost/posts.json"
   poll_time: 5.0
 
-  stats_url: "http://leafo.net/saltw/"
+  -- stats_url: "http://leafo.net/saltw/"
   stats_update_time: 60*3
 }
 
@@ -367,9 +368,11 @@ if config.ipb_feed_url
 
 event_loop\add_listener irc.reader
 
-stats = misc.stats2.Stats!
-event_loop\add_task stats\make_task!
-irc\add_message_handler stats\make_handler!
+if config.stats_url
+  require "misc.stats2"
+  stats = misc.stats2.Stats!
+  event_loop\add_task stats\make_task!
+  irc\add_message_handler stats\make_handler!
 
 -- get the title of a webpage
 irc\add_message_handler (irc, name, channel, msg) ->
