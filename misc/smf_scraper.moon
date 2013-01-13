@@ -107,7 +107,7 @@ make_task = -> {
     @running = true
     @smf = @smf or SMFFeed!
 
-    HTTPRequest\get config.feed_url, (body) ->
+    HTTPRequest\get config.smf_feed_url, (body) ->
       @running = false
       return unless body
       new_posts = @smf\get_new_posts body

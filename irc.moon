@@ -21,14 +21,13 @@ config = get_config "config", {
 
   verbose: true
 
-  feed_url: 'http://www.saltw.net/index.php?action=.xml'
+  smf_feed_url: 'http://www.saltw.net/index.php?action=.xml'
   poll_time: 5.0
 
   stats_url: "http://leafo.net/saltw/"
   stats_update_time: 60*3
 }
 
-smf = require "misc.smf_scraper"
 state = require "state"
 
 -- character buffer
@@ -358,7 +357,10 @@ irc = Irc host or config.host, port or config.port
 for k,v in pairs {:event_loop, :irc, :HTTPRequest}
   state[k] = v
 
-event_loop\add_task smf.make_task!
+if config.smf_feed_url
+  smf = require "misc.smf_scraper"
+  event_loop\add_task smf.make_task!
+
 event_loop\add_listener irc.reader
 
 require "misc.stats2"
