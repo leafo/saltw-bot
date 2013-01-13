@@ -152,7 +152,7 @@ class Irc
     @socket\send "USER ".."moon "\rep(3)..":Bildo Bagins\r\n"
 
     event_loop\add_task {
-      time: 1
+      time: config.join_delay or 1
       action: ->
         return unless @socket
         if config.password
