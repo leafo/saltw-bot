@@ -10,7 +10,7 @@ strip = (str) -> str\match "^(.-)%s*$"
 event_loop = nil
 
 config = get_config "config", {
-  name: 'bladder_x2'
+  name: 'bladder_x'
   host: 'localhost'
   port: 6667
   reconnect_time: 15

@@ -35,7 +35,7 @@ class IPBFeed
     new_posts
 
   url_for_post: (post) =>
-    "http://saltword.net/p#{post.pid}"
+    "http://saltworld.net/p#{post.pid}"
 
   format_message: (irc, post) =>
     d = decode_html_entities
