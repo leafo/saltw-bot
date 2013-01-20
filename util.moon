@@ -12,7 +12,7 @@ export get_config = (package_name, default) ->
 
   package.loaded.config
 
-entities = { amp: '&', gt: '>', lt: '<' }
+entities = { amp: '&', gt: '>', lt: '<', quot: '"', apos: "'" }
 
 export decode_html_entities = (str) ->
   (str\gsub '&(.-);', (tag) ->
