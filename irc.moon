@@ -386,37 +386,16 @@ if config.stats_url
 
 -- get the title of a webpage
 irc\add_message_handler (irc, name, channel, msg) ->
-  if url = msg\match "^!title (.*)"
-    url = strip url
+  if url = msg\match "%f[%a]https?://[^%s]+"
     HTTPRequest\get url, (body, headers) ->
       if body
-        if title = body\match("<title>(.-)</title>")
-          irc\message decode_html_entities(title), channel
-
-
--- get the title of a youtube
-irc\add_message_handler (irc, name, channel, msg) ->
-  -- 'http://youtu.be/nJjJ_8CgzDY' -- short url
-  url = if id = msg\match "youtu%.be/([%w_-]+)"
-    "www.youtube.com/watch?v=#{id}"
-
-  url = unless url
-    msg\match "www%.youtube%.com/watch%?v=[%w_-]+"
-
-  if url
-    HTTPRequest\get url, (body, headers) ->
-      if body
-        title = body\match("<title>(.-)</title>")
-        if match = title\match "^(.-) %- YouTube$"
-          title = match
-
-        title = decode_html_entities title
-
-        with irc
-          \me {
-            \color "grey", "[YouTube] "
-            title
+        title_patt = "[tT][iI][tT][lL][eE]"
+        if title = body\match("<#{title_patt}>(.-)</#{title_patt}>")
+          irc\me {
+            irc\color "grey", "[Title] "
+            decode_html_entities(title)
           }, channel
+
 
 event_loop\run!
 
