@@ -242,7 +242,7 @@ class HTTPRequest
     if not url.host
       return callback nil, "Malformed url: #{@url}"
 
-    socket = socket.connect url.host, url.port or 80
+    socket = socket.connect url.host, tonumber(url.port) or 80
 
     if not socket
       return callback nil, "Failed to open connection to #{url.host}"
