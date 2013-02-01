@@ -230,6 +230,7 @@ class HTTPRequest
     http\send callback
 
   new: (@url, @data=nil) =>
+    @redirect_count = 0
     @headers = {
       "Connection": "close"
     }
@@ -258,6 +259,7 @@ class HTTPRequest
     socket\send "\r\n"
     socket\send @data if @data
 
+    req = @
     event_loop\add_listener Reader socket, =>
       header = {}
       while true
@@ -283,7 +285,15 @@ class HTTPRequest
         require"moon".p header
         error "Don't know how to read HTTP response"
 
-      callback body, header
+      if redirect_to = header["Location"]
+        return if req.redirect_count > 5
+        r = HTTPRequest redirect_to, req.data
+        r.method = req.method
+        r.headers = { k,v for k,v in pairs req.headers when k != "host" }
+        r.redirect_count = req.redirect_count + 1
+        r\send callback
+      else
+        callback body, header
       nil
 
 class EventLoop
