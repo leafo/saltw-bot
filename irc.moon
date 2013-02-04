@@ -279,11 +279,13 @@ class HTTPRequest
           @get_line! -- get the extra \r\n
 
         table.concat chunks
-      elseif header["Connection"] == "close"
+      elseif header["Connection"]\lower! == "close"
         @get_bytes_until_closed!
       else
-        require"moon".p header
-        error "Don't know how to read HTTP response"
+        for k,v in pairs header
+          print "*", k, v
+        print "Don't know how to read HTTP response"
+        ""
 
       if redirect_to = header["Location"]
         return if req.redirect_count > 5
