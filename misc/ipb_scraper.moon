@@ -42,8 +42,8 @@ class IPBFeed
 
     with irc
       \me {
-        \color "grey",    config.message_prefix..post_type..' '
-        \color "orange",  post.title
+        \color "grey",    config.message_prefix..post_type
+        \color "orange",  " " .. post.title
         \color "grey",    " ["..post.forum_name.."] by "
         \color "green",   post.author_name
         \color "grey",    " > "

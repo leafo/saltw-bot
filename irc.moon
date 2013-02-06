@@ -394,7 +394,8 @@ irc\add_message_handler (irc, name, channel, msg) ->
         title_patt = "[tT][iI][tT][lL][eE]"
         if title = body\match("<#{title_patt}>(.-)</#{title_patt}>")
           irc\me {
-            irc\color "grey", "[Title] "
+            irc\color "grey", "[Title]"
+            " "
             decode_html_entities(title)
           }, channel
 
