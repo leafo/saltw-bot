@@ -1,4 +1,6 @@
 
+import utf8 from require "unicode"
+
 export get_config = (package_name, default) ->
   initial = false
   if not package.loaded[package_name]
@@ -19,10 +21,13 @@ export decode_html_entities = (str) ->
     if entities[tag]
       entities[tag]
     elseif chr = tag\match "#(%d+)"
-      string.char tonumber chr
+      utf8.char tonumber chr
+    elseif chr = tag\match "#[xX](%d+)"
+      utf8.char tonumber chr, 16
     else
       '&'..tag..';')
 
 if ... == "test"
   print decode_html_entities "Welcome&#33;"
-
+  print decode_html_entities "&#x41;"
+  print decode_html_entities "When it&#8217;s a new Torment game"
