@@ -5,6 +5,10 @@ require "util"
 state = require "state"
 config = require "config"
 
+options = {
+  muted_names: {}
+}
+
 deep_insert = (tbl, stack, value) ->
   for i, name in ipairs stack
     if i == #stack
@@ -113,6 +117,8 @@ make_task = -> {
       new_posts = @smf\get_new_posts body
 
       for post in *new_posts
+        continue if options.muted_names[post.poster.name]
+
         post_type = 'topic'
         if post.subject\match("^Re: ") then
           post.subject = post.subject\sub 5
@@ -129,5 +135,5 @@ make_task = -> {
           }
 }
 
-{:SMFFeed, :make_task}
+{ :SMFFeed, :make_task, :options }
 

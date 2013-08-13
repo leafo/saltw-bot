@@ -56,6 +56,8 @@ if false
 class Stats extends MemoryStats
   make_handler: =>
     (irc, name, channel, msg, host) ->
+      return unless channel\match "^#" -- don't count user PRIVMSG
+
       if msg == "!stats"
         @send_messages (count) ->
           irc\message "#{config.stats_public_url} (sent #{count})", channel

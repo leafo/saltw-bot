@@ -186,7 +186,7 @@ class Irc
       log "PONG"
       return
 
-    name, host, channel, msg = line\match(':([^!]+)!([^%s]+) PRIVMSG (#[%w_]+) :(.*)')
+    name, host, channel, msg = line\match(':([^!]+)!([^%s]+) PRIVMSG (#?[%w_]+) :(.*)')
     if name
       for handler in *@message_handlers
         handler @, name, channel, msg, host
@@ -399,6 +399,9 @@ irc\add_message_handler (irc, name, channel, msg) ->
             decode_html_entities(title)
           }, channel
 
+
+if config.admin_password
+  irc\add_message_handler require"misc.admin".handler
 
 event_loop\run!
 
