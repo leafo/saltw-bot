@@ -1,6 +1,4 @@
 
-moon = require "moon"
-
 format_list = (items) ->
   copy = { k,v for k,v in pairs items }
   table.sort(copy)
