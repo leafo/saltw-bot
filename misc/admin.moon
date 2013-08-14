@@ -7,21 +7,21 @@ format_list = (items) ->
 local actions
 actions = {
   mute: (irc, sender, username) ->
-    smf = require "misc.smf_scraper"
-    smf.options.muted_names[username] = true
+    ipb = require "misc.ipb_scraper"
+    ipb.options.muted_names[username] = true
     irc\message "muted #{username}", sender
 
   speak: (irc, sender, channel, ...) ->
     irc\message table.concat({...}, " "), channel
 
   list_mute: (irc, sender) ->
-    smf = require "misc.smf_scraper"
-    names = format_list [k for k in pairs smf.options.muted_names]
+    ipb = require "misc.ipb_scraper"
+    names = format_list [k for k in pairs ipb.options.muted_names]
     irc\message "Muted: #{names}", sender
 
   list_post_chain: (irc, sender) ->
-    smf = require "misc.smf_scraper"
-    names = format_list [k for k in pairs smf.options.post_chain]
+    ipb = require "misc.ipb_scraper"
+    names = format_list ipb.options.post_chain
     irc\message "Post chain: #{names}", sender
 
   help: (irc, sender) ->

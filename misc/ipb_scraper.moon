@@ -6,6 +6,46 @@ json = require "cjson"
 
 require "util"
 
+options = {
+  muted_names: {}
+  spammers: setmetatable({}, __index: => 0)
+}
+
+class List
+  count: 0
+  max_items: 4
+
+  all_equal: (val) =>
+    return false if #@ == 0
+
+    for thing in *@
+      return false if thing != val
+
+    true
+
+  push: (item) =>
+    table.insert @, item
+
+    if #@ > @max_items
+      table.remove @, 1
+
+options.post_chain = List!
+
+allowed_to_show_post = (name) ->
+  return false if options.muted_names[name]
+
+  if options.post_chain\all_equal name
+    options.spammers[name] += 1
+
+    if options.spammers[name] > 4
+      options.muted_names[name] = true
+    else
+      options.post_chain\push name
+
+    return false
+
+  true
+
 class IPBFeed
   new: =>
     @last_posts = nil
@@ -65,8 +105,9 @@ make_task = ->
       HTTPRequest\get config.ipb_feed_url, (body) ->
         @running = false
         for post in *@ipb\get_new_posts body
+          continue unless allowed_to_show_post post.author_name
           @ipb\format_message irc, post
   }
 
-{:make_task}
+{:make_task, :options}
 
