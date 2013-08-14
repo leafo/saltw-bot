@@ -11,10 +11,18 @@ actions = {
     smf.options.muted_names[username] = true
     irc\message "muted #{username}", sender
 
+  speak: (irc, sender, channel, ...) ->
+    irc\message table.concat({...}, " "), channel
+
   list_mute: (irc, sender) ->
     smf = require "misc.smf_scraper"
     names = format_list [k for k in pairs smf.options.muted_names]
     irc\message "Muted: #{names}", sender
+
+  list_post_chain: (irc, sender) ->
+    smf = require "misc.smf_scraper"
+    names = format_list [k for k in pairs smf.options.post_chain]
+    irc\message "Post chain: #{names}", sender
 
   help: (irc, sender) ->
     action_names = format_list [k for k in pairs actions]

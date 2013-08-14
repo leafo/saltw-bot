@@ -22,6 +22,28 @@ find = (tbl, item) ->
     return true if thing == item
   false
 
+
+class List
+  count: 0
+  max_items: 4
+
+  all_equal: (val) =>
+    return false if #@ == 0
+
+    for thing in *@
+      return false if thing != val
+
+    true
+
+  push: (item) =>
+    table.insert @, item
+
+    if #@ > @max_items
+      table.remove @, 1
+
+options.post_chain = List!
+
+
 class SMFFeed
   new: =>
     @recent_posts = nil
@@ -99,6 +121,10 @@ class SMFFeed
 --   for f in *files
 --     moon.p smf\get_new_posts io.open(f)\read"*a"
 
+allowed_to_show_post = (name) ->
+  return false if options.muted_names[post.poster.name]
+  return false if options.post_chain\all_equal name
+  true
 
 make_task = -> {
   name: "Scrape forums"
@@ -117,7 +143,8 @@ make_task = -> {
       new_posts = @smf\get_new_posts body
 
       for post in *new_posts
-        continue if options.muted_names[post.poster.name]
+        continue unless allowed_to_show_post post.poster.name
+        options.post_chain\push post.poster.name
 
         post_type = 'topic'
         if post.subject\match("^Re: ") then
