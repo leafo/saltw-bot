@@ -39,11 +39,10 @@ allowed_to_show_post = (name) ->
 
     if options.spammers[name] > 4
       options.muted_names[name] = true
-    else
-      options.post_chain\push name
 
     return false
 
+  options.post_chain\push name
   true
 
 class IPBFeed
