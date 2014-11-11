@@ -57,6 +57,7 @@ class Stats extends MemoryStats
   make_handler: =>
     (irc, name, channel, msg, host) ->
       return unless channel\match "^#" -- don't count user PRIVMSG
+      return unless channel == "#saltw" -- TODO: WOOPS
 
       if msg == "!stats"
         @send_messages (count) ->
