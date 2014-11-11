@@ -4,7 +4,7 @@
 module "misc.stats2", package.seeall
 
 
-require "date"
+date = require "date"
 json = require "cjson"
 config = require "config"
 state = require "state"
