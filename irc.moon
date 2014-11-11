@@ -17,7 +17,7 @@ config = get_config "config", {
 
   message_prefix: 'New ', -- used for New reply, New post
 
-  channels: { '#saltw' }
+  channels: { '#saltw', '#astrojone' }
 
   verbose: true
 
@@ -196,12 +196,13 @@ class Irc
     @socket\send "JOIN #{channel}\r\n"
     insert @channels, channel
 
-  message: (msg, channel=nil) =>
-    if channel
-      @socket\send "PRIVMSG #{channel} :#{msg}\r\n"
+  message: (msg, channel=@channels) =>
+    if type(channel) == "table"
+      for c in *channel
+        @message msg, c
     else
-      for channel in *@channels
-        @message msg, channel
+      -- on channel
+      @socket\send "PRIVMSG #{channel} :#{msg}\r\n"
 
   message_to: (who, msg) =>
     @socket\send 'PRIVMSG '..who..' :'..msg..'\r\n'
@@ -376,7 +377,7 @@ if config.smf_feed_url
 
 if config.ipb_feed_url
   ipb = require "misc.ipb_scraper"
-  event_loop\add_task ipb.make_task!
+  event_loop\add_task ipb.make_task config.forum_channels
 
 event_loop\add_listener irc.reader
 

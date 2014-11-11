@@ -46,7 +46,7 @@ allowed_to_show_post = (name) ->
   true
 
 class IPBFeed
-  new: =>
+  new: (@channels) =>
     @last_posts = nil
 
   parse_posts: (text) =>
@@ -87,10 +87,10 @@ class IPBFeed
         \color "green",   post.author_name
         \color "grey",    " > "
         @url_for_post post
-      }
+      }, @channels
 
 
-make_task = ->
+make_task = (channels) ->
   {
     name: "Scrape forums"
     time: 0
@@ -99,7 +99,7 @@ make_task = ->
       {:irc, :HTTPRequest} = state
       return if @running
       @running = true
-      @ipb = @ipb or IPBFeed!
+      @ipb = @ipb or IPBFeed channels
 
       HTTPRequest\get config.ipb_feed_url, (body) ->
         @running = false
