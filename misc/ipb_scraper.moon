@@ -93,7 +93,7 @@ class IPBFeed
 make_task = (channels) ->
   {
     name: "Scrape forums"
-    time: 0
+    time: 10
     interval: 5
     action: =>
       {:irc, :HTTPRequest} = state
