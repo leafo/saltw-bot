@@ -14,8 +14,6 @@ class UrlTitles extends require "saltw.extension"
       title_patt = "[tT][iI][tT][lL][eE]"
       title = body\match("<#{title_patt}>(.-)</#{title_patt}>")
 
-      print "got title:", title
-
       return unless title
 
       irc\me {
