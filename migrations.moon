@@ -14,7 +14,10 @@ import add_column, create_index, drop_index, drop_column, create_table from sche
   =>
     create_table "users", {
       {"id", serial}
+
+      {"channel", varchar}
       {"name", varchar}
+
       {"messages_count", integer}
       {"last_seen_at", time}
 
@@ -26,5 +29,5 @@ import add_column, create_index, drop_index, drop_column, create_table from sche
       "PRIMARY KEY(id)"
     }
 
-    add_index "users", "name", unique: true
+    create_index "users", "channel", "name", unique: true
 }

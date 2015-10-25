@@ -1,0 +1,3 @@
+TOP = $(TUP_CWD)
+: foreach *.moon |> moonc %f |> %B.lua
+
