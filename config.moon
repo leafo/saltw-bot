@@ -12,8 +12,11 @@ config "development", ->
   host "localhost"
   name "bladder_x"
 
+  admin_password "admin"
+
   extensions {
     "url_titles"
+    "admin"
   }
 
   postgres {

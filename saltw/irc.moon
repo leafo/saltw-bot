@@ -143,15 +143,9 @@ class Irc
     table.concat { delim, colors[color] or color, msg, delim }
 
 -- 
--- if config.smf_feed_url
---   smf = require "saltw.misc.smf_scraper"
---   event_loop\add_task smf.make_task!
--- 
 -- if config.ipb_feed_url
 --   ipb = require "saltw.misc.ipb_scraper"
 --   event_loop\add_task ipb.make_task config.forum_channels
--- 
--- event_loop\add_listener irc.reader
 -- 
 -- if config.stats_url
 --   stats2 = require "saltw.misc.stats2"
@@ -159,10 +153,6 @@ class Irc
 --   event_loop\add_task stats\make_task!
 --   irc\add_message_handler stats\make_handler!
 -- 
--- 
--- if config.admin_password
---   irc\add_message_handler require("saltw.misc.admin").handler
--- 
--- { run: -> event_loop\run! }
+
 
 { :Irc }
