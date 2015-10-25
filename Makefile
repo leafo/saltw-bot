@@ -5,4 +5,5 @@ test_server:
 	ngircd -n --config test/ngircd.conf
 
 lint: 
-	git ls-files | grep '\.moon$$' | grep -v config.moon | xargs -n 100 moonc -l
+	moonc lint_config.moon
+	git ls-files | grep '\.moon$$' | grep -v config.moon | grep -v stats_server | xargs -n 100 moonc -l
