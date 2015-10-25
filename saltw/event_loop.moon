@@ -33,6 +33,10 @@ class EventLoop
     @readers[client] = nil
     @listening = [sock for sock in *@listening when sock != client]
 
+  http_get: (...) =>
+    import HTTPRequest from require "saltw.socket"
+    @add_listener HTTPRequest\get ...
+
   run: =>
     last_time = socket.gettime!
     while true

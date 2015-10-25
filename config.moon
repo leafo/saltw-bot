@@ -12,6 +12,10 @@ config "development", ->
   host "localhost"
   name "bladder_x"
 
+  extensions {
+    "url_titles"
+  }
+
   postgres {
     database: "saltw"
   }

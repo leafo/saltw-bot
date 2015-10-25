@@ -11,6 +11,8 @@ import Dispatch from require "saltw.dispatch"
 log = (...) -> print "+++", ...
 
 class Irc
+  extension_prefix: "saltw.extensions."
+
   colors = {
     white: 0
     black: 1
@@ -38,6 +40,11 @@ class Irc
     @port or= 6667
 
     @dispatch = Dispatch!
+
+    @extensions = for e in *@config.extensions or {}
+      require("#{@extension_prefix}#{e}") @
+
+    @dispatch\trigger "irc.before_connect", @
 
     @connect!
 
@@ -68,6 +75,8 @@ class Irc
     @socket\send "NICK #{@config.name}\r\n"
     @socket\send "USER ".."moon "\rep(3)..":Bildo Bagins\r\n"
 
+    @dispatch\trigger "irc.connect", @
+
     @event_loop\add_task {
       time: @config.join_delay or 1
       action: ->
@@ -92,8 +101,8 @@ class Irc
           task.interval = nil -- stop trying to reconnect
     }
 
-  add_message_handler: (handler) =>
-    @dispatch\on "irc.message", handler
+  on: (event, handler) =>
+    @dispatch\on event, handler
 
   handle_message: (line) =>
     print "IRC:", line if @config.verbose
@@ -111,6 +120,7 @@ class Irc
   join: (channel) =>
     @socket\send "JOIN #{channel}\r\n"
     insert @channels, channel
+    @dispatch\trigger "irc.join", @, channel
 
   message: (msg, channel=@channels) =>
     if type(channel) == "table"
@@ -132,14 +142,6 @@ class Irc
     delim = string.char 0x03
     table.concat { delim, colors[color] or color, msg, delim }
 
-
--- event_loop = EventLoop!
--- 
--- host, port = ...
--- irc = Irc host or config.host, port or config.port
--- 
--- for k,v in pairs {:event_loop, :irc, :HTTPRequest}
---   state[k] = v
 -- 
 -- if config.smf_feed_url
 --   smf = require "saltw.misc.smf_scraper"
@@ -156,19 +158,6 @@ class Irc
 --   stats = stats2.Stats!
 --   event_loop\add_task stats\make_task!
 --   irc\add_message_handler stats\make_handler!
--- 
--- -- get the title of a webpage
--- irc\add_message_handler (irc, name, channel, msg) ->
---   if url = msg\match "%f[%a]https?://[^%s]+"
---     HTTPRequest\get url, (body, headers) ->
---       if body
---         title_patt = "[tT][iI][tT][lL][eE]"
---         if title = body\match("<#{title_patt}>(.-)</#{title_patt}>")
---           irc\me {
---             irc\color "grey", "[Title]"
---             " "
---             decode_html_entities(title)
---           }, channel
 -- 
 -- 
 -- if config.admin_password
