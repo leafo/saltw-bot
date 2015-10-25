@@ -9,6 +9,11 @@ config "development", ->
   join_delay 2
   channels { "#leafo" }
 
+  ipb {
+    url: "http://saltworld.net/forums/?app=forums&module=extras&section=newpoststream"
+    channels: { "#leafo" }
+  }
+
   host "localhost"
   name "bladder_x"
 
@@ -17,6 +22,7 @@ config "development", ->
   extensions {
     "url_titles"
     "admin"
+    "ipb_forum"
   }
 
   postgres {

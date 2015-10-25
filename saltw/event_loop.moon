@@ -40,7 +40,7 @@ class EventLoop
   run: =>
     last_time = socket.gettime!
     while true
-      readable, writable, err = socket.select @listening, nil, 1
+      readable, writable, err = socket.select @listening, nil, 0.5
       if err ~= "timeout"
         for sock in *readable
           co, err_handler = unpack @readers[sock]

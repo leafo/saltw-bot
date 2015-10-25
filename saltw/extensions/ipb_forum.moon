@@ -1,7 +1,5 @@
 -- http://saltworld.net/forums/?app=forums&module=extras&section=newpoststream
 
-config = require "saltw.config"
-state = require "saltw.state"
 json = require "cjson"
 
 options = {
@@ -44,7 +42,7 @@ allowed_to_show_post = (name) ->
   true
 
 class IPBFeed
-  new: (@channels) =>
+  new: =>
     @last_posts = nil
 
   parse_posts: (text) =>
@@ -61,6 +59,7 @@ class IPBFeed
 
   get_new_posts: (text) =>
     posts = @parse_posts text
+
     new_posts = {}
     return new_posts unless posts
     if @last_posts
@@ -74,37 +73,46 @@ class IPBFeed
   url_for_post: (post) =>
     "http://saltworld.net/p#{post.pid}"
 
-  format_message: (irc, post) =>
+  format_message: (irc, channels, post) =>
     post_type = post.new_topic == 0 and "reply in" or "topic"
 
     with irc
       \me {
-        \color "grey",    config.message_prefix..post_type
+        \color "grey",    irc.config.message_prefix..post_type
         \color "orange",  " " .. post.title
         \color "grey",    " ["..post.forum_name.."] by "
         \color "green",   post.author_name
         \color "grey",    " > "
         @url_for_post post
-      }, @channels
+      }, channels
 
+class IPBForum
+  new: (@irc) =>
+    return unless @irc.config.ipb
 
-make_task = (channels) ->
-  {
-    name: "Scrape forums"
-    time: 10
-    interval: 5
-    action: =>
-      {:irc, :HTTPRequest} = state
-      return if @running
-      @running = true
-      @ipb = @ipb or IPBFeed channels
+    @url = @irc.config.ipb.url
+    @channels = @irc.config.ipb.channels
 
-      HTTPRequest\get config.ipb_feed_url, (body) ->
-        @running = false
-        for post in *@ipb\get_new_posts body
-          continue unless allowed_to_show_post post.author_name
-          @ipb\format_message irc, post
-  }
+    unless @url and @channels
+      print "missing url and channels for ipb extension"
+      return
 
-{:make_task, :options}
+    @feed = IPBFeed!
+
+    @irc.event_loop\add_task {
+      name: "Scrape forums"
+      time: 10
+      interval: 5
+      action: @\task
+    }
+
+  task: (t) =>
+    return if @busy
+    @busy = true
+
+    @irc.event_loop\http_get @url, (body) ->
+      @busy = false
+      for post in *@feed\get_new_posts body
+        continue unless allowed_to_show_post post.author_name
+        @feed\format_message @irc, @channels, post
 

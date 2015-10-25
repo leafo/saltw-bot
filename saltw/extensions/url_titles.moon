@@ -10,7 +10,6 @@ class UrlTitles extends require "saltw.extension"
     return unless url
 
     irc.event_loop\http_get url, (body) ->
-
       return unless body
       title_patt = "[tT][iI][tT][lL][eE]"
       title = body\match("<#{title_patt}>(.-)</#{title_patt}>")
@@ -23,5 +22,5 @@ class UrlTitles extends require "saltw.extension"
         irc\color "grey", "[Title]"
         " "
         decode_html_entities(title)
-      }, channel
+      }, chan
 
