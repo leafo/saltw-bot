@@ -2,7 +2,6 @@ config = require("lapis.config").get!
 
 DEFAULT_CONFIG = {
   name: 'bladder_x'
-  port: 6667
   reconnect_time: 15
 
   message_prefix: 'New ', -- used for New reply, New post

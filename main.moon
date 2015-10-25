@@ -1,2 +1,4 @@
 irc = require "saltw.irc"
-irc.run!
+
+
+irc.Irc nil, require("saltw.config")
