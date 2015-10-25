@@ -53,7 +53,7 @@ describe "saltw.dispatch", ->
         d\off "irc.wowza"
         assert.same default_structure, d.callbacks
 
-  describe "callbacks #ddd", ->
+  describe "callbacks", ->
     it "runs two callbacks", ->
       out = {}
 

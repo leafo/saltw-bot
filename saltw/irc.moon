@@ -6,6 +6,7 @@ import decode_html_entities from require "saltw.util"
 import insert from table
 
 import Reader from require "saltw.socket"
+import Dispatch from require "saltw.dispatch"
 
 log = (...) -> print "+++", ...
 
@@ -36,7 +37,8 @@ class Irc
     @host or= @config.host
     @port or= 6667
 
-    @message_handlers = {}
+    @dispatch = Dispatch!
+
     @connect!
 
     irc = @
@@ -91,7 +93,7 @@ class Irc
     }
 
   add_message_handler: (handler) =>
-    insert @message_handlers, handler
+    @dispatch\on "irc.message", handler
 
   handle_message: (line) =>
     print "IRC:", line if @config.verbose
@@ -104,8 +106,7 @@ class Irc
 
     name, host, channel, msg = line\match(':([^!]+)!([^%s]+) PRIVMSG (#?[%w_]+) :(.*)')
     if name
-      for handler in *@message_handlers
-        handler @, name, channel, msg, host
+      @dispatch\trigger "irc.message", @, name, channel, msg, host
 
   join: (channel) =>
     @socket\send "JOIN #{channel}\r\n"
