@@ -7,7 +7,8 @@ config "test", ->
 
 config "development", ->
   join_delay 2
-  forum_channels { "#saltw" }
+  channels { "#leafo" }
+
   host "localhost"
   name "bladder_x"
 

@@ -107,7 +107,6 @@ class Irc
       for handler in *@message_handlers
         handler @, name, channel, msg, host
 
-
   join: (channel) =>
     @socket\send "JOIN #{channel}\r\n"
     insert @channels, channel
