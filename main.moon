@@ -1,4 +1,5 @@
-irc = require "saltw.irc"
+import Irc from require "saltw.irc"
+import EventLoop from require "saltw.event_loop"
 
-
-irc.Irc nil, require("saltw.config")
+loop = EventLoop!
+irc = Irc loop, require("saltw.config")

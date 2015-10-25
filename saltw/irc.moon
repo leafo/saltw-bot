@@ -7,6 +7,8 @@ import insert from table
 
 import Reader from require "saltw.socket"
 
+log = (...) -> print "+++", ...
+
 class Irc
   colors = {
     white: 0
@@ -27,10 +29,9 @@ class Irc
     silver: 15
   }
 
-  log = (...) -> print "+++", ...
-
   new: (@event_loop, @config) =>
-    @host, @port = assert(@config.host, "config missing host")\match "^(.-):(%d*)$"
+    host = assert @config.host, "config missing host"
+    @host, @port = host\match "^(.-):(%d*)$"
 
     @host or= @config.host
     @port or= 6667
@@ -47,7 +48,7 @@ class Irc
       handle_error: (msg) =>
         irc.socket = nil
         if msg == "closed"
-          log "Disconnected. Reconnecting in #{config.reconnect_time} seconds"
+          log "Disconnected. Reconnecting in #{@config.reconnect_time} seconds"
           irc\reconnect!
         else
           error msg
@@ -56,32 +57,34 @@ class Irc
   connect: =>
     @channels = {}
     @socket = socket.connect @host, @port
-    if not @socket
+
+    unless @socket
       error "could not connect to server #{@host}:#{@port}"
 
-    @socket\send "NICK #{config.name}\r\n"
+    @socket\send "NICK #{@config.name}\r\n"
     @socket\send "USER ".."moon "\rep(3)..":Bildo Bagins\r\n"
 
-    event_loop\add_task {
-      time: config.join_delay or 1
+    @event_loop\add_task {
+      time: @config.join_delay or 1
       action: ->
         return unless @socket
-        if config.password
-          @message_to 'NickServ', 'IDENTIFY '..config.password
 
-        for channel in *config.channels
+        if @config.password
+          @message_to "NickServ", "IDENTIFY #{@config.password}"
+
+        for channel in *@config.channels
           @join channel
     }
 
   reconnect: =>
-    event_loop\add_task {
-      interval: config.reconnect_time
+    @event_loop\add_task {
+      interval: @config.reconnect_time
       action: (task) ->
         log "Reconnected:", pcall ->
           log "Trying to reconnect"
           @connect!
           @reader\set_socket @socket
-          event_loop\add_listener @reader
+          @event_loop\add_listener @reader
           task.interval = nil -- stop trying to reconnect
     }
 
@@ -89,7 +92,7 @@ class Irc
     insert @message_handlers, handler
 
   handle_message: (line) =>
-    print "IRC:", line if config.verbose
+    print "IRC:", line if @config.verbose
 
     ping = line\match "^PING :(.*)"
     if ping

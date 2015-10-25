@@ -3,6 +3,7 @@ import insert, remove from table
 
 socket = require "socket"
 
+-- non blocking event loop
 class EventLoop
   new: =>
     @listening = {}
@@ -66,6 +67,5 @@ class EventLoop
             continue -- remove the task
         else
           task
-
 
 { :EventLoop }
