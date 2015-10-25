@@ -1,10 +1,8 @@
 -- http://saltworld.net/forums/?app=forums&module=extras&section=newpoststream
 
-config = require "config"
-state = require "state"
+config = require "saltw.config"
+state = require "saltw.state"
 json = require "cjson"
-
-require "util"
 
 options = {
   muted_names: {}

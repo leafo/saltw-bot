@@ -1,35 +1,17 @@
 
-require "socket"
-require "socket.url"
-require "util"
+socket = require "socket"
+{parse: parse_url} = require "socket.url"
 
+import decode_html_entities from require "saltw.util"
 import insert, remove from table
 
 strip = (str) -> str\match "^(.-)%s*$"
 
 event_loop = nil
 
-config = get_config "config", {
-  name: 'bladder_x'
-  host: 'localhost'
-  port: 6667
-  reconnect_time: 15
+config = require "saltw.config"
 
-  message_prefix: 'New ', -- used for New reply, New post
-
-  channels: { '#saltw', '#astrojone' }
-
-  verbose: true
-
-  -- smf_feed_url: "http://localhost/smf/index.php?action=.xml"
-  -- ipb_feed_url: "http://localhost/posts.json"
-  poll_time: 5.0
-
-  -- stats_url: "http://leafo.net/saltw/"
-  stats_update_time: 60*3
-}
-
-state = require "state"
+state = require "saltw.state"
 
 -- character buffer
 class Buffer
@@ -48,8 +30,8 @@ class Buffer
 
 -- coroutine based socket reader
 class Reader
-  new: (socket, fn={}) =>
-    @set_socket socket
+  new: (sock, fn={}) =>
+    @set_socket sock
 
     if type(fn) == "function"
       @loop = fn
@@ -239,29 +221,29 @@ class HTTPRequest
   send: (callback) =>
     @url = "http://" .. @url unless @url\match "^http://"
     print "HTTP:", @url
-    url = socket.url.parse @url
+    url = parse_url @url
     if not url.host
       return callback nil, "Malformed url: #{@url}"
 
-    socket = socket.connect url.host, tonumber(url.port) or 80
+    sock = socket.connect url.host, tonumber(url.port) or 80
 
-    if not socket
+    unless sock
       return callback nil, "Failed to open connection to #{url.host}"
 
     path = url.path or "/"
     path ..= "?" .. url.query if url.query
 
-    socket\send "#{@method} #{path} HTTP/1.1\r\n"
+    sock\send "#{@method} #{path} HTTP/1.1\r\n"
     @headers["Host"] = url.host
 
     for k,v in pairs @headers
-      socket\send "#{k}: #{v}\r\n"
+      sock\send "#{k}: #{v}\r\n"
 
-    socket\send "\r\n"
-    socket\send @data if @data
+    sock\send "\r\n"
+    sock\send @data if @data
 
     req = @
-    event_loop\add_listener Reader socket, =>
+    event_loop\add_listener Reader sock, =>
       header = {}
       while true
         line = @get_line!
@@ -316,12 +298,12 @@ class EventLoop
     task
 
   add_listener: (reader) =>
-    socket = reader.socket
+    sock = reader.socket
     fn = reader\make_coroutine!
     err_handler = reader\handle_error
 
-    @readers[socket] = { fn, err_handler }
-    insert @listening, socket
+    @readers[sock] = { fn, err_handler }
+    insert @listening, sock
 
   remove_listener: (client) =>
     client\close!
@@ -333,17 +315,17 @@ class EventLoop
     while true
       readable, writable, err = socket.select @listening, nil, 1
       if err ~= "timeout"
-        for socket in *readable
-          co, err_handler = unpack @readers[socket]
+        for sock in *readable
+          co, err_handler = unpack @readers[sock]
           result = { coroutine.resume co }
           success = remove result, 1
           error unpack result unless success
 
           if result[1] != nil
             err_handler unpack result
-            @remove_listener socket
+            @remove_listener sock
           elseif coroutine.status(co) == "dead"
-            @remove_listener socket
+            @remove_listener sock
 
       -- run the tasks
       time = socket.gettime!
@@ -372,17 +354,17 @@ for k,v in pairs {:event_loop, :irc, :HTTPRequest}
   state[k] = v
 
 if config.smf_feed_url
-  smf = require "misc.smf_scraper"
+  smf = require "saltw.misc.smf_scraper"
   event_loop\add_task smf.make_task!
 
 if config.ipb_feed_url
-  ipb = require "misc.ipb_scraper"
+  ipb = require "saltw.misc.ipb_scraper"
   event_loop\add_task ipb.make_task config.forum_channels
 
 event_loop\add_listener irc.reader
 
 if config.stats_url
-  require "misc.stats2"
+  require "saltw.misc.stats2"
   stats = misc.stats2.Stats!
   event_loop\add_task stats\make_task!
   irc\add_message_handler stats\make_handler!
@@ -402,7 +384,6 @@ irc\add_message_handler (irc, name, channel, msg) ->
 
 
 if config.admin_password
-  irc\add_message_handler require"misc.admin".handler
+  irc\add_message_handler require("saltw.misc.admin").handler
 
-event_loop\run!
-
+{ run: -> event_loop\run! }

@@ -1,11 +1,7 @@
 
-require "lsqlite3"
-require "date"
+sqlite3 = require "lsqlite3"
+date = require "date"
 math.randomseed os.time!
-
-module "misc.sqlite", package.seeall
-
-export ^
 
 class Datastore
   db_name: "store.db"
@@ -41,6 +37,7 @@ class Datastore
 
   create_db: => -- : )
 
-nil
+
+{ :Datastore }
 
 

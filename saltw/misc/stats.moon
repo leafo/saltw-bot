@@ -58,3 +58,5 @@ class Stats extends Datastore
 data = Stats!
 data\handle_message "leafo", "What the heck is this about? " .. math.random!
 data\print_stats!
+
+

@@ -1,17 +1,12 @@
 
 -- this queues the stats, then sends them off somewhere else
 
-module "misc.stats2", package.seeall
-
-
 date = require "date"
 json = require "cjson"
 config = require "config"
 state = require "state"
 
 import insert from table
-
-export ^
 
 class MemoryStats
   new: => @messages = {}
@@ -99,3 +94,5 @@ class Stats extends MemoryStats
 -- data\handle_message "leafo", "another test..." .. math.random!
 -- data\print_queue!
 
+
+{ :Stats, :MemoryStats }

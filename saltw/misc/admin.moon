@@ -7,7 +7,7 @@ format_list = (items) ->
 local actions
 actions = {
   mute: (irc, sender, username) ->
-    ipb = require "misc.ipb_scraper"
+    ipb = require "saltw.misc.ipb_scraper"
     ipb.options.muted_names[username] = true
     irc\message "muted #{username}", sender
 
@@ -15,12 +15,12 @@ actions = {
     irc\message table.concat({...}, " "), channel
 
   list_mute: (irc, sender) ->
-    ipb = require "misc.ipb_scraper"
+    ipb = require "saltw.misc.ipb_scraper"
     names = format_list [k for k in pairs ipb.options.muted_names]
     irc\message "Muted: #{names}", sender
 
   list_post_chain: (irc, sender) ->
-    ipb = require "misc.ipb_scraper"
+    ipb = require "saltw.misc.ipb_scraper"
     names = format_list ipb.options.post_chain
     irc\message "Post chain: #{names}", sender
 
@@ -30,7 +30,7 @@ actions = {
 }
 
 handler = (irc, name, channel, message) ->
-  config = require "config"
+  config = require "saltw.config"
 
   return if channel\match "^#"
   return unless config.admin_password
