@@ -1,4 +1,6 @@
 
+import decode_html_entities from require "lapis"
+
 -- get the title of a youtube url
 make_handler = ->
   (irc, name, channel, msg) ->

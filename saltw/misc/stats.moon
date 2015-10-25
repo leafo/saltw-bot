@@ -50,10 +50,9 @@ class Stats extends Datastore
         ]], msg, name
 
   print_stats: =>
-    require "moon"
     print "stats:"
     for t in @db\nrows "select * from users order by message_count desc"
-      moon.p t
+      require("moon").p t
 
 data = Stats!
 data\handle_message "leafo", "What the heck is this about? " .. math.random!

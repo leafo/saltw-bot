@@ -42,10 +42,9 @@ if false
       @create_db!
 
     print_queue: =>
-      require "moon"
       print "queue:"
       for t in @db\nrows "select * from messages order by time desc"
-        moon.p t
+        require("moon").p t
 
 
 class Stats extends MemoryStats

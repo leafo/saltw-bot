@@ -364,8 +364,8 @@ if config.ipb_feed_url
 event_loop\add_listener irc.reader
 
 if config.stats_url
-  require "saltw.misc.stats2"
-  stats = misc.stats2.Stats!
+  stats2 = require "saltw.misc.stats2"
+  stats = stats2.Stats!
   event_loop\add_task stats\make_task!
   irc\add_message_handler stats\make_handler!
 
