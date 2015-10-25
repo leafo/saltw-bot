@@ -54,6 +54,8 @@ class Irc
           error msg
     }
 
+    @event_loop\add_listener @reader
+
   connect: =>
     @channels = {}
     @socket = socket.connect @host, @port
