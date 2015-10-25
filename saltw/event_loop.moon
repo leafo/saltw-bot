@@ -26,6 +26,7 @@ class EventLoop
     err_handler = reader\handle_error
 
     @readers[sock] = { fn, err_handler }
+    reader.event_loop = @
     insert @listening, sock
 
   remove_listener: (client) =>
@@ -35,7 +36,8 @@ class EventLoop
 
   http_get: (...) =>
     import HTTPRequest from require "saltw.socket"
-    @add_listener HTTPRequest\get ...
+    if reader = HTTPRequest\get ...
+      @add_listener reader
 
   run: =>
     last_time = socket.gettime!

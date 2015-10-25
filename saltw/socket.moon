@@ -93,16 +93,23 @@ class HTTPRequest
     }
 
   reader: (callback) =>
-    @url = "http://" .. @url unless @url\match "^http://"
+    if @url\match "^https:"
+      callback nil, "https not supported yet"
+      return
+
+    @url = "http://" .. @url unless @url\match "^https?://"
     print "HTTP:", @url
     url = parse_url @url
-    if not url.host
-      return callback nil, "Malformed url: #{@url}"
+
+    unless url.host
+      callback nil, "Malformed url: #{@url}"
+      return
 
     sock = socket.connect url.host, tonumber(url.port) or 80
 
     unless sock
-      return callback nil, "Failed to open connection to #{url.host}"
+      callback nil, "Failed to open connection to #{url.host}"
+      return
 
     path = url.path or "/"
     path ..= "?" .. url.query if url.query
@@ -146,11 +153,11 @@ class HTTPRequest
 
       if redirect_to = header["Location"]
         return if req.redirect_count > 5
-        r = HTTPRequest redirect_to, req.data
-        r.method = req.method
+        r = HTTPRequest req.method, redirect_to, req.data
         r.headers = { k,v for k,v in pairs req.headers when k != "host" }
         r.redirect_count = req.redirect_count + 1
-        r\send callback
+        if redirect_reader = @event_loop and r\reader callback
+          @event_loop\add_listener redirect_reader
       else
         callback body, header
       nil
