@@ -46,7 +46,6 @@ if false
       for t in @db\nrows "select * from messages order by time desc"
         require("moon").p t
 
-
 class Stats extends MemoryStats
   make_handler: =>
     (irc, name, channel, msg, host) ->
@@ -76,7 +75,6 @@ class Stats extends MemoryStats
         callback #messages if callback
       else
         print "Stats server responded:", res
-
 
   make_task: =>
     @task = {

@@ -141,11 +141,6 @@ class Irc
   color: (color, msg) =>
     delim = string.char 0x03
     table.concat { delim, colors[color] or color, msg, delim }
-
--- 
--- if config.ipb_feed_url
---   ipb = require "saltw.misc.ipb_scraper"
---   event_loop\add_task ipb.make_task config.forum_channels
 -- 
 -- if config.stats_url
 --   stats2 = require "saltw.misc.stats2"

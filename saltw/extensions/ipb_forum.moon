@@ -86,7 +86,7 @@ class IPBFeed
         @url_for_post post
       }, channels
 
-class IPBForum
+class IPBForum extends require "saltw.extension"
   new: (@irc) =>
     return unless @irc.config.ipb
 

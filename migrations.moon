@@ -12,7 +12,7 @@ import add_column, create_index, drop_index, drop_column, create_table from sche
 
 {
   =>
-    create_table "users", {
+    create_table "channel_users", {
       {"id", serial}
 
       {"channel", varchar}
@@ -29,5 +29,5 @@ import add_column, create_index, drop_index, drop_column, create_table from sche
       "PRIMARY KEY(id)"
     }
 
-    create_index "users", "channel", "name", unique: true
+    create_index "channel_users", "channel", db.raw("lower(name)"), unique: true
 }

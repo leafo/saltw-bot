@@ -23,6 +23,7 @@ config "development", ->
     "url_titles"
     "admin"
     "ipb_forum"
+    "stats"
   }
 
   postgres {

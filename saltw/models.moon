@@ -1,2 +1,2 @@
-import autoload from require "laips.util"
+import autoload from require "lapis.util"
 autoload "saltw.models"
