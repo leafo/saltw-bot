@@ -80,6 +80,9 @@ class Irc
     @socket\send "NICK #{@config.name}\r\n"
     @socket\send "USER ".."moon "\rep(3)..":Bildo Bagins\r\n"
 
+    if @config.twitch
+      @socket\send "CAP REQ :twitch.tv/membership\r\n"
+
     @dispatch\trigger "irc.connect", @
 
     @event_loop\add_task {
