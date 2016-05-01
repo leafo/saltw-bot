@@ -16,6 +16,7 @@ config "twitch", ->
 
   extensions {
     "speak"
+    "scramble_vim"
   }
 
 

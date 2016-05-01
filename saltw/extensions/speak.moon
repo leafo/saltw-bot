@@ -8,7 +8,7 @@ class Speak extends require  "saltw.extension"
   message_handler: (e, irc, name, channel, message) =>
     -- remove any nasty characters
     speak = ("#{name} says #{message}")\gsub "[^%w ]", " "
-    speak = speak\sub 1, 40
+    speak = speak\sub 1, 80
 
     port = "--ao=jack:port=[Gate In #1]"
     port_local = "--ao=jack"
