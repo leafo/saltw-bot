@@ -16,13 +16,14 @@ class Speak extends require  "saltw.extension"
       "Terminus 17"
       "Source Code Pro 13"
       "Roboto Mono 16"
+      "C64 Pro Mono 13"
     }
 
     colors = {
       "eddie"
       "elflord"
       "wombat"
-      "moon"
+      "blue_mod"
       "zellner"
     }
 
@@ -30,7 +31,5 @@ class Speak extends require  "saltw.extension"
     color = random_item colors
     font = font\gsub " ", "\\ "
 
-    command = ":set guifont=\"#{font}\"<CR>:colorscheme \"#{color}\"<CR>"
-    print "gvim --remote-send '#{shell_escape command}'"
-
-
+    command = ":set guifont=#{font}<CR>:colorscheme #{color}<CR>"
+    io.popen "gvim --remote-send '#{shell_escape command}'"

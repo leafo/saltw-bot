@@ -6,6 +6,8 @@ class Speak extends require  "saltw.extension"
     @irc\on "irc.message", @\message_handler
 
   message_handler: (e, irc, name, channel, message) =>
+    return if message\match "^!"
+
     -- remove any nasty characters
     speak = ("#{name} says #{message}")\gsub "[^%w ]", " "
     speak = speak\sub 1, 80
