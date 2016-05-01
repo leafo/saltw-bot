@@ -31,5 +31,5 @@ class Speak extends require  "saltw.extension"
     color = random_item colors
     font = font\gsub " ", "\\ "
 
-    command = ":set guifont=#{font}<CR>:colorscheme #{color}<CR>"
+    command = "<ESC>:set guifont=#{font}<CR>:colorscheme #{color}<CR>"
     io.popen "gvim --remote-send '#{shell_escape command}'"
