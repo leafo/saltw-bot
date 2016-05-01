@@ -5,6 +5,20 @@ config "test", ->
     database: "saltw_test"
   }
 
+config "twitch", ->
+  host "irc.chat.twitch.tv"
+  prot "6667"
+  name "bladder_x"
+  channels { "#moonscript" }
+  extensions { }
+  oauth_token require "pass"
+  twitch true
+
+  extensions {
+    "speak"
+  }
+
+
 config "development", ->
   join_delay 2
 
