@@ -1,6 +1,8 @@
 shell_escape = (str) ->
   str\gsub "'", "''"
 
+local last_person
+
 class Speak extends require  "saltw.extension"
   new: (@irc) =>
     @irc\on "irc.message", @\message_handler
@@ -8,9 +10,13 @@ class Speak extends require  "saltw.extension"
   message_handler: (e, irc, name, channel, message) =>
     return if message\match "^!"
 
+    if last_person != name
+      message = "#{name} says #{message}"
+      last_person = name
+
     -- remove any nasty characters
-    speak = ("#{name} says #{message}")\gsub "[^%w ]", " "
-    speak = speak\sub 1, 80
+    speak = message\gsub "[^%w ]", " "
+    speak = speak\sub 1, 100
 
     port = "--ao=jack:port=[Gate In #1]"
     port_local = "--ao=jack"
@@ -21,5 +27,4 @@ class Speak extends require  "saltw.extension"
     }
 
     cmd = "(#{table.concat cmd, " | "}) &"
-    print cmd
     io.popen cmd
