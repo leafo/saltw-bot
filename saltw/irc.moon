@@ -49,6 +49,7 @@ class Irc
     @connect!
 
     irc = @
+    config = @config
     @reader = Reader @socket, {
       loop: =>
         while true
@@ -57,7 +58,7 @@ class Irc
       handle_error: (msg) =>
         irc.socket = nil
         if msg == "closed"
-          log "Disconnected. Reconnecting in #{@config.reconnect_time} seconds"
+          log "Disconnected. Reconnecting in #{config.reconnect_time} seconds"
           irc\reconnect!
         else
           error msg
@@ -67,10 +68,14 @@ class Irc
 
   connect: =>
     @channels = {}
-    @socket = socket.connect @host, @port
+    socket = socket.connect @host, @port
+    @socket = socket
 
     unless @socket
       error "could not connect to server #{@host}:#{@port}"
+
+    if @config.oauth_token
+      @socket\send "PASS #{@config.oauth_token}\n\n"
 
     @socket\send "NICK #{@config.name}\r\n"
     @socket\send "USER ".."moon "\rep(3)..":Bildo Bagins\r\n"

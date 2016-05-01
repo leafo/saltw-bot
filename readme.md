@@ -10,7 +10,7 @@ An irc bot written in MoonScript.
 
 # how to run
 
-    moon irc.moon
+    moon main.moon
 
 In order to have the bot identify with server create a file
 called `config.lua` and make it return a table with password field:
