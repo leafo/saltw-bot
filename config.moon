@@ -13,10 +13,16 @@ config "twitch", ->
   oauth_token require "pass"
   twitch true
 
+  postgres {
+    database: "twitch_bot"
+    socket_type: "cqueues"
+  }
+
   extensions {
     -- "speak"
     -- "scramble_vim"
     -- "midi"
+    "stats"
     "today"
   }
 
