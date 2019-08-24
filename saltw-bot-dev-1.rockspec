@@ -14,7 +14,7 @@ description = {
 
 dependencies = {
   "lua = 5.1",
-  "lapis"
+  "lapis",
   "ansicolors",
   "luasocket",
   "lua-cjson",

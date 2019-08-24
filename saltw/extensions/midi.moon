@@ -1,6 +1,3 @@
-shell_escape = (str) ->
-  str\gsub "'", "''"
-
 class Midi extends require  "saltw.extension"
   new: (@irc) =>
     @irc\on "irc.message", @\message_handler

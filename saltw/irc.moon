@@ -74,14 +74,16 @@ class Irc
     unless @socket
       error "could not connect to server #{@host}:#{@port}"
 
-    if @config.oauth_token
-      @socket\send "PASS #{@config.oauth_token}\n\n"
+    pcall ->
+      oauth_token = require("pass")!
+      @socket\send "PASS #{oauth_token}\n\n"
 
     @socket\send "NICK #{@config.name}\r\n"
     @socket\send "USER ".."moon "\rep(3)..":Bildo Bagins\r\n"
 
     if @config.twitch
       @socket\send "CAP REQ :twitch.tv/membership\r\n"
+      @socket\send "CAP REQ :twitch.tv/tags\r\n"
 
     @dispatch\trigger "irc.connect", @
 

@@ -1,3 +1,4 @@
 *.lua
 *.db
 .tup
+pass.moon

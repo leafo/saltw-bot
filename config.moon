@@ -10,14 +10,14 @@ config "twitch", ->
   prot "6667"
   name "bladder_x"
   channels { "#moonscript" }
-  extensions { }
   oauth_token require "pass"
   twitch true
 
   extensions {
-    "speak"
-    "scramble_vim"
-    "midi"
+    -- "speak"
+    -- "scramble_vim"
+    -- "midi"
+    "today"
   }
 
 
