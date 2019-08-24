@@ -1,5 +1,6 @@
 
-socket = require "socket"
+socket = require "cqueues.socket"
+
 {parse: parse_url} = require "socket.url"
 
 import decode_html_entities from require "saltw.util"
@@ -32,7 +33,7 @@ class Irc
     silver: 15
   }
 
-  new: (@event_loop, @config) =>
+  new: (@cqueues, @config) =>
     host = assert @config.host, "config missing host"
     @host, @port = host\match "^(.-):(%d*)$"
 
@@ -48,23 +49,11 @@ class Irc
 
     @connect!
 
-    irc = @
-    config = @config
-    @reader = Reader @socket, {
-      loop: =>
-        while true
-          irc\handle_message @get_line!
-
-      handle_error: (msg) =>
-        irc.socket = nil
-        if msg == "closed"
-          log "Disconnected. Reconnecting in #{config.reconnect_time} seconds"
-          irc\reconnect!
-        else
-          error msg
-    }
-
-    @event_loop\add_listener @reader
+    @cqueues\wrap ->
+      -- TODO: add a way to stop looping when client is closed
+      -- TODO: figure out how to handle errors
+      for ln in @socket\lines!
+        @handle_message ln
 
   connect: =>
     @channels = {}
@@ -76,40 +65,22 @@ class Irc
 
     pcall ->
       oauth_token = require("pass")!
-      @socket\send "PASS #{oauth_token}\n\n"
+      @socket\write "PASS #{oauth_token}\n\n"
 
-    @socket\send "NICK #{@config.name}\r\n"
-    @socket\send "USER ".."moon "\rep(3)..":Bildo Bagins\r\n"
+    @socket\write "NICK #{@config.name}\r\n"
+    @socket\write "USER ".."moon "\rep(3)..":Bildo Bagins\r\n"
 
     if @config.twitch
-      @socket\send "CAP REQ :twitch.tv/membership\r\n"
-      @socket\send "CAP REQ :twitch.tv/tags\r\n"
+      @socket\write "CAP REQ :twitch.tv/membership\r\n"
+      @socket\write "CAP REQ :twitch.tv/tags\r\n"
 
     @dispatch\trigger "irc.connect", @
 
-    @event_loop\add_task {
-      time: @config.join_delay or 1
-      action: ->
-        return unless @socket
+    if @config.password
+      @message_to "NickServ", "IDENTIFY #{@config.password}"
 
-        if @config.password
-          @message_to "NickServ", "IDENTIFY #{@config.password}"
-
-        for channel in *@config.channels
-          @join channel
-    }
-
-  reconnect: =>
-    @event_loop\add_task {
-      interval: @config.reconnect_time
-      action: (task) ->
-        log "Reconnected:", pcall ->
-          log "Trying to reconnect"
-          @connect!
-          @reader\set_socket @socket
-          @event_loop\add_listener @reader
-          task.interval = nil -- stop trying to reconnect
-    }
+    for channel in *@config.channels
+      @join channel
 
   on: (event, handler) =>
     @dispatch\on event, handler
@@ -119,7 +90,7 @@ class Irc
 
     ping = line\match "^PING :(.*)"
     if ping
-      @socket\send "PONG #{ping}\r\n"
+      @socket\write "PONG #{ping}\r\n"
       log "PONG"
       return
 
@@ -128,7 +99,7 @@ class Irc
       @dispatch\trigger "irc.message", @, name, channel, msg, host
 
   join: (channel) =>
-    @socket\send "JOIN #{channel}\r\n"
+    @socket\write "JOIN #{channel}\r\n"
     insert @channels, channel
     @dispatch\trigger "irc.join", @, channel
 
@@ -138,15 +109,15 @@ class Irc
         @message msg, c
     else
       -- on channel
-      @socket\send "PRIVMSG #{channel} :#{msg}\r\n"
+      @socket\write "PRIVMSG #{channel} :#{msg}\r\n"
 
   message_to: (who, msg) =>
-    @socket\send 'PRIVMSG '..who..' :'..msg..'\r\n'
+    @socket\write 'PRIVMSG '..who..' :'..msg..'\r\n'
 
   me: (msg, channel=nil) =>
     msg = table.concat msg if type(msg) == "table"
     delim = string.char 0x01
-    self\message table.concat({ delim, 'ACTION ', msg, delim }), channel
+    @message table.concat({ delim, 'ACTION ', msg, delim }), channel
 
   color: (color, msg) =>
     delim = string.char 0x03
