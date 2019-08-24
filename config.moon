@@ -7,7 +7,7 @@ config "test", ->
 
 config "twitch", ->
   host "irc.chat.twitch.tv"
-  prot "6667"
+  port "6667"
   name "bladder_x"
   channels { "#moonscript" }
   oauth_token require "pass"

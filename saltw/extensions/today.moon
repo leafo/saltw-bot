@@ -1,6 +1,6 @@
 
 MESSAGES = {
-  "!today": "I am working on my twitch bot written in MoonScript. This is my first stream please be nice"
+  "!today": "I am working on my twitch bot written in MoonScript. Convert luasocket code to cqueues"
   "!linux": "I use Arch Linux, AwesomeWM, Vim"
   "!language": "I typically code in MoonScript (which compiles to Lua), but also sometimes JavaScript"
   "!editor": "Vim in rxvt-unicode"
