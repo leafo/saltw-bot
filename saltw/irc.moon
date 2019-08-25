@@ -94,9 +94,11 @@ class Irc
       log "PONG"
       return
 
-    name, host, channel, msg = line\match(':([^!]+)!([^%s]+) PRIVMSG (#?[%w_]+) :(.*)')
-    if name
-      @dispatch\trigger "irc.message", @, name, channel, msg, host
+
+    parse_message = require "saltw.irc.parse_message"
+    if message = parse_message line
+      require("moon").p message
+      @dispatch\trigger "irc.message", @, message.name, message.channel, message.message, message.host
 
   join: (channel) =>
     @socket\write "JOIN #{channel}\r\n"
