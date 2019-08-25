@@ -1,6 +1,6 @@
 
 MESSAGES = {
-  "!today": "I am working on my twitch bot written in MoonScript. Convert luasocket code to cqueues"
+  "!today": "I am working on my twitch bot written in MoonScript. Writing new message parser"
   "!linux": "I use Arch Linux, AwesomeWM, Vim"
   "!language": "I typically code in MoonScript (which compiles to Lua), but also sometimes JavaScript"
   "!editor": "Vim in rxvt-unicode"
@@ -28,15 +28,15 @@ class Today extends require  "saltw.extension"
   new: (@irc) =>
     @irc\on "irc.message", @\message_handler
 
-  message_handler: (e, irc, name, channel, message) =>
-    msg = switch message
+  message_handler: (e, irc, message) =>
+    msg = switch message.message
       when "!list", "!help", "!commands"
         keys = [key for key in pairs MESSAGES]
         table.sort keys
         keys = table.concat keys, " "
         "Available commands: #{keys}"
       else
-        MESSAGES[message]
+        MESSAGES[message.message]
 
     if msg and #msg >= 500
       print "\n\n MESSAGE TOO LONG \n\n"

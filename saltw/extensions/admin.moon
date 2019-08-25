@@ -39,7 +39,9 @@ class Admin extends require "saltw.extension"
     return unless @irc.config.admin_password
     @irc\on "irc.message", @\message_handler
 
-  message_handler: (e, irc, name, channel, message) =>
+  message_handler: (e, irc, message) =>
+    {:name, :channel, :message} = message
+
     return if channel\match "^#"
 
     args = [ tok for tok in  message\gmatch "%S+" ]

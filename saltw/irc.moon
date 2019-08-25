@@ -94,11 +94,9 @@ class Irc
       log "PONG"
       return
 
-
     parse_message = require "saltw.irc.parse_message"
     if message = parse_message line
-      require("moon").p message
-      @dispatch\trigger "irc.message", @, message.name, message.channel, message.message, message.host
+      @dispatch\trigger "irc.message", @, message
 
   join: (channel) =>
     @socket\write "JOIN #{channel}\r\n"

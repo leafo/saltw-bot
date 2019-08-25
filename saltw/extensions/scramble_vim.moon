@@ -8,7 +8,10 @@ class Speak extends require  "saltw.extension"
   new: (@irc) =>
     @irc\on "irc.message", @\message_handler
 
-  message_handler: (e, irc, name, channel, message) =>
+
+  message_handler: (e, irc, message) =>
+    {:name, :channel, :message} = message
+
     return unless message == "!vim"
 
     fonts = {
