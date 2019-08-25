@@ -1,5 +1,9 @@
 
-.PHONY: test_server lint test_db
+.PHONY: test_server lint test_db start
+
+
+start:
+	LAPIS_SHOW_QUERIES=1 LAPIS_ENVIRONMENT=twitch luajit main.lua
 
 test_server:
 	ngircd -n --config test/ngircd.conf
