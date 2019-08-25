@@ -18,7 +18,7 @@ test_db:
 	createdb -U postgres saltw_test
 	lapis migrate test
 
-init_db: 
+init_db:
 	tup
 	-dropdb -U postgres saltw
 	createdb -U postgres saltw

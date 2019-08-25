@@ -5,7 +5,13 @@ import concat, insert from table
 insert_on_conflict_update = (model, primary, create, update) ->
   import encode_values, encode_assigns from require "lapis.db"
 
-  full_insert = {k,v for k,v in pairs primary}
+  full_insert = {}
+
+  for k,v in pairs primary
+    if type(k) == "table" and k.column
+      k = k.column
+
+    full_insert[k] = v
 
   if create
     for k,v in pairs create
@@ -30,6 +36,9 @@ insert_on_conflict_update = (model, primary, create, update) ->
   insert buffer, " on conflict ("
 
   for k in pairs primary
+    if type(k) == "table" and k.value
+      k = k.value
+
     insert buffer, db.escape_identifier k
     insert buffer, ", "
 
