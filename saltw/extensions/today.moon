@@ -1,12 +1,16 @@
 
 MESSAGES = {
   "!today": "I am working on my twitch bot written in MoonScript. Writing new message parser"
+  "!drink": "Usually iced tea, but sometimes water"
   "!linux": "I use Arch Linux, AwesomeWM, Vim"
   "!language": "I typically code in MoonScript (which compiles to Lua), but also sometimes JavaScript"
   "!editor": "Vim in rxvt-unicode"
-  "!itch": "I founded https://itch.io/ I may work on it during stream sometimes"
+  "!itchio": "I founded https://itch.io/ I may work on it during stream sometimes"
   "!moonscript": "MoonScript is a language I made that I use to program most of my projects in https://moonscript.org"
   "!camera": "Nikon D5100 screencaptured PTP with Entangle https://entangle-photo.org/"
+  "!adam": "Adam makes Bot Land http://twitch.tv/Adam13531"
+  "!keyboard": "ErgoDox EZ with Kailh Speed Switches (Silver) (qwerty)"
+  "!lua": "I use it for everything"
 }
 
 
