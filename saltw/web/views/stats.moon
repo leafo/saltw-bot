@@ -28,6 +28,9 @@ class Stats extends Widget
             details ->
               summary "Give Points"
 
+              p ->
+                a href: @url_for(user), "View logs"
+
               form {
                 action: @url_for user
                 method: "POST"

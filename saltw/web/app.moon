@@ -20,19 +20,23 @@ class App extends lapis.Application
     render: "stats"
 
   [channel_user: "/channel-users/:channel_user_id[%d]"]: capture_errors_json respond_to {
+    before: =>
+      import ChannelUsers from require "saltw.models"
+      @channel_user = ChannelUsers\find @params.channel_user_id
+      assert_error @channel_user, "invalid user"
+
+    GET: =>
+      render: true
+
     POST: =>
       csrf.assert_token @
 
-      import ChannelUsers from require "saltw.models"
-      channel_user = ChannelUsers\find @params.channel_user_id
-      assert_error channel_user, "invalid user"
-
       amount = assert tonumber(@params.amount), "invalid number"
 
-      channel_user\give_point @params.reason, amount
+      @channel_user\give_point @params.reason, amount
 
       json: {
-        channel_user
+        @channel_user
       }
   }
 
