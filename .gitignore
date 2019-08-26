@@ -2,3 +2,4 @@
 *.db
 .tup
 pass.moon
+test.moon

@@ -6,10 +6,17 @@ config "test", ->
   }
 
 config "twitch", ->
-  host "irc.chat.twitch.tv"
-  port "6667"
+  irc ->
+    host "irc.chat.twitch.tv"
+    port "6667"
+
+  host "localhost"
+  port 8081
+  code_cache true
+
   name "bladder_x"
   channels { "#moonscript" }
+
   oauth_token require "pass"
   twitch true
 

@@ -34,11 +34,16 @@ class Irc
   }
 
   new: (@cqueues, @config) =>
-    host = assert @config.host, "config missing host"
+    config = assert @config.irc, "missing irc config"
+
+    host = assert config.host, "config missing host"
     @host, @port = host\match "^(.-):(%d*)$"
 
-    @host or= @config.host
-    @port or= 6667
+    if config.host
+      @host = config.host
+
+    if config.port
+      @port = config.port
 
     @dispatch = Dispatch!
 
