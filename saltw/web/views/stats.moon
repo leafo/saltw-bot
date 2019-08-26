@@ -23,7 +23,25 @@ class Stats extends Widget
       for user in *@users
         tr ->
           td ->
-            a href: "https://twitch.tv/#{user.name}", user.name
+            div ->
+              a href: "https://twitch.tv/#{user.name}", user.name
+            details ->
+              summary "Give Points"
+
+              form {
+                action: @url_for user
+                method: "POST"
+              }, ->
+                input type: "hidden", name: "csrf_token", value: @csrf_token
+                label ->
+                  div "Reason"
+                  input type: "text", name: "reason"
+
+                label ->
+                  div "Amount"
+                  input type: "number", name: "amount", value: 1
+
+                button "Submit"
 
           td user.messages_count
           td user.points_count

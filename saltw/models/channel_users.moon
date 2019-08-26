@@ -29,6 +29,8 @@ class ChannelUsers extends require "saltw.model"
       last_seen_at: db.raw "excluded.last_seen_at"
     }
 
+  url_params: (req) =>
+    "channel_user", channel_user_id: @id
 
   give_point: (reason, amount=1) =>
     import ChannelUserPointLogs from require "saltw.models"
@@ -40,7 +42,7 @@ class ChannelUsers extends require "saltw.model"
 
     if log
       @update {
-        points_count: db.raw "points_count + 1"
+        points_count: db.raw db.interpolate_query "points_count + ?", log.amount
       }
 
     log
