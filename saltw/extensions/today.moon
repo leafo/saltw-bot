@@ -1,6 +1,6 @@
 
 MESSAGES = {
-  "!today": "I am working on my twitch bot written in MoonScript. Writing new message parser"
+  "!today": "I am working on my twitch bot written in MoonScript. Adding HTTP server to bot, with stats page"
   "!drink": "Usually iced tea, but sometimes water"
   "!linux": "I use Arch Linux, AwesomeWM, Vim"
   "!language": "I typically code in MoonScript (which compiles to Lua), but also sometimes JavaScript"
@@ -11,6 +11,8 @@ MESSAGES = {
   "!adam": "Adam makes Bot Land http://twitch.tv/Adam13531"
   "!keyboard": "ErgoDox EZ with Kailh Speed Switches (Silver) (qwerty)"
   "!lua": "I use it for everything"
+  "!faq": "Try here: https://github.com/leafo/streaming-wiki"
+  "!github": "https://github.com/leafo"
 }
 
 
