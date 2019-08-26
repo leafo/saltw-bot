@@ -1,11 +1,15 @@
 
 db = require "lapis.db"
-import Model, enum from require "lapis.db.model"
+import enum from require "lapis.db.model"
 
 import insert_on_conflict_update from require "saltw.db.helpers"
 
-class ChannelUsers extends Model
+class ChannelUsers extends require "saltw.model"
   @timestamp: true
+
+  @relations: {
+    {"point_logs", has_many: "ChannelUserPointLogs"}
+  }
 
   @log: (channel, user, message) =>
     insert_on_conflict_update @, {
