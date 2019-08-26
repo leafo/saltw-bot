@@ -29,3 +29,24 @@ class ChannelUsers extends require "saltw.model"
       last_seen_at: db.raw "excluded.last_seen_at"
     }
 
+
+  give_point: (reason, amount=1) =>
+    import ChannelUserPointLogs from require "saltw.models"
+    log = ChannelUserPointLogs\create {
+      channel_user_id: @id
+      :reason
+      :amount
+    }
+
+    if log
+      @update {
+        points_count: db.raw "points_count + 1"
+      }
+
+    log
+
+
+
+
+
+
