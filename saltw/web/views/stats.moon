@@ -16,6 +16,7 @@ class Stats extends Widget
         tr ->
           td "Name"
           td "Message count"
+          td "Points"
           td "Last seen"
           td "Random message"
 
@@ -25,5 +26,6 @@ class Stats extends Widget
             a href: "https://twitch.tv/#{user.name}", user.name
 
           td user.messages_count
+          td user.points_count
           td user.last_seen_at
           td user.random_message
