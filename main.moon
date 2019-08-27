@@ -11,5 +11,10 @@ loop\wrap ->
   App = require "saltw.web.app"
   start_server App
 
+loop\wrap ->
+  HotLoader = require "saltw.hot_loader"
+  loader = HotLoader!
+  loader\start!
+
 assert loop\loop!
 
