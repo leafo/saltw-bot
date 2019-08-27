@@ -1,6 +1,6 @@
 
 MESSAGES = {
-  "!today": "I am working on my twitch bot written in MoonScript. Adding HTTP server to bot, with stats page"
+  "!today": "I am working on my twitch bot written in MoonScript. Adding class hotreloading for development"
   "!drink": "Usually iced tea, but sometimes water"
   "!linux": "I use Arch Linux, AwesomeWM, Vim"
   "!language": "I typically code in MoonScript (which compiles to Lua), but also sometimes JavaScript"
