@@ -1,8 +1,10 @@
 import ChannelUsers from require "saltw.models"
 
-class Stats extends require  "saltw.extension"
+import bind from require "saltw.util"
+
+class Stats extends require "saltw.extension"
   new: (@irc) =>
-    @irc\on "irc.message", @\message_handler
+    @irc\on "irc.message", bind @, "message_handler"
 
   message_handler: (e, irc, message) =>
     {:name, :channel} = message

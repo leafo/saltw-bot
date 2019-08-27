@@ -1,4 +1,6 @@
 
+import bind from require "saltw.util"
+
 MESSAGES = {
   "!today": "I am working on my twitch bot written in MoonScript. Adding class hotreloading for development. yes it still works #{os.time!}"
   "!drink": "Usually iced tea, but sometimes water"
@@ -32,8 +34,7 @@ MESSAGES = {
 
 class Today extends require "saltw.extension"
   new: (@irc) =>
-    @irc\on "irc.message", (...) ->
-      @message_handler ...
+    @irc\on "irc.message", bind @, "message_handler"
 
   message_handler: (e, irc, message) =>
     msg = switch message.message

@@ -14,4 +14,8 @@ decode_html_entities = (str) ->
     else
       '&'..tag..';')
 
-{ :decode_html_entities }
+
+bind = (obj, method_name) ->
+  (...) -> obj[method_name] obj, ...
+
+{ :decode_html_entities, :bind }
