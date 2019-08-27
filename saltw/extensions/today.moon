@@ -15,6 +15,8 @@ MESSAGES = {
   "!lua": "I use it for everything"
   "!faq": "Try here: https://github.com/leafo/streaming-wiki"
   "!github": "https://github.com/leafo"
+  "!discord": "My discord: https://discord.gg/Y75ZXrD itch.io discord: https://discord.gg/3Q6qm95"
+  "!twitter": "https://twitter.com/moonscript"
 }
 
 
