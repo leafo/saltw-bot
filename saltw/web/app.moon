@@ -6,18 +6,14 @@ csrf = require "lapis.csrf"
 
 class App extends lapis.Application
   views_prefix: "saltw.web.views"
+  flows_prefix: "saltw.web.flows"
 
   @before_filter =>
     csrf = require "lapis.csrf"
     @csrf_token = csrf.generate_token @
 
   "/": =>
-    import ChannelUsers from require "saltw.models"
-    @users = ChannelUsers\select "
-      where channel = '#moonscript'
-      order by messages_count desc limit 100
-    "
-    render: "stats"
+    @flow("app")\render_home!
 
   [channel_user: "/channel-users/:channel_user_id[%d]"]: capture_errors_json respond_to {
     before: =>
