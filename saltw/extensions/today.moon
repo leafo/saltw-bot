@@ -47,6 +47,35 @@ class Today extends require "saltw.extension"
 
     types.one_of(config.admin_names) name
 
+  make_it_rain: (message) =>
+    unless @is_admin message.name
+      return
+
+    {:channel} = message
+
+    return unless channel\match "^#"
+
+    Twitch = require "saltw.clients.twitch"
+    twitch = Twitch "moonscript"
+
+    chatters = twitch\get_chatters!
+    return unless chatters
+
+    points = 0
+
+    for name in *chatters.viewers
+      import ChannelUsers from require "saltw.models"
+      cu = ChannelUsers\find {
+        :channel
+        :name
+      }
+
+      if cu
+        cu\give_point "!makeitrain", 1
+        points += 1
+
+    "bleedPurple bleedPurple It's raining #{points} point(s) SMOrc"
+
   message_handler: (e, irc, message) =>
     msg = switch message.message
       when "!list", "!help", "!commands"
@@ -54,6 +83,8 @@ class Today extends require "saltw.extension"
         table.sort keys
         keys = table.concat keys, " "
         "Available commands: #{keys}"
+      when "!makeitrain"
+        @make_it_rain message
       else
         MESSAGES[message.message]
 
