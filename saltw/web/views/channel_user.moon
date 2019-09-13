@@ -2,12 +2,6 @@ import Widget from require "lapis.html"
 
 class ChannelUser extends Widget
   content: =>
-    style type: "text/css", [[
-      body {
-        font-family: sans-serif;
-      }
-    ]]
-
     h1 @channel_user.name
 
     element "table", border: 1, ->

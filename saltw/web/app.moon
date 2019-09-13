@@ -7,6 +7,7 @@ csrf = require "lapis.csrf"
 class App extends lapis.Application
   views_prefix: "saltw.web.views"
   flows_prefix: "saltw.web.flows"
+  layout: require "saltw.web.views.layout"
 
   @before_filter =>
     csrf = require "lapis.csrf"

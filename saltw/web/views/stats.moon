@@ -3,12 +3,6 @@ import Widget from require "lapis.html"
 
 class Stats extends Widget
   content: =>
-    style type: "text/css", [[
-      body {
-        font-family: sans-serif;
-      }
-    ]]
-
     h1 "Stats"
 
     element "table", border: 1, ->
