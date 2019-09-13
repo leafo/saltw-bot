@@ -18,12 +18,19 @@ class Twitch
 
     @client.client_id
 
+  log_request: (url) =>
+    colors = require "ansicolors"
+    log_tpl = colors("%{bright}%{green}HTTP: %{reset}%{blue}%s%{reset}")
+    print log_tpl\format url
+
   http_request: (path, opts={}) =>
     url = "#{opts.api_base or @api_base}/#{path}"
 
     if opts.query
       import encode_query_string from require "lapis.util"
       url = "#{url}?#{encode_query_string opts.query}"
+
+    @log_request url
 
     req = assert http_request.new_from_uri url
 
