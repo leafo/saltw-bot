@@ -1,0 +1,27 @@
+name: test
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@master
+
+    - uses: leafo/gh-actions-lua@v3
+      with:
+        luaVersion: "luajit"
+
+    - uses: leafo/gh-actions-luarocks@v2
+
+    - name: build
+      run: |
+        luarocks install lapis
+        luarocks install cqueues
+        luarocks install lua-cjson
+        luarocks install busted
+
+    - name: test
+      run: |
+        busted -o utfTerminal
