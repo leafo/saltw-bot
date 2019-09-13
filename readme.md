@@ -1,16 +1,14 @@
-An irc bot written in MoonScript.
+An irc/Twitch bot written in MoonScript using [cqueues](https://github.com/wahern/cqueues).
 
-# dependencies
+# Live developed on Twitch
 
- * [LuaSocket](http://w3.impa.br/~diego/software/luasocket/)
- * [LuaExpat](http://www.keplerproject.org/luaexpat/lom.html)
- * [date](http://luaforge.net/projects/date/)
- * [lsqlite3](http://lua.sqlite.org/index.cgi/index) -- for stats
- * [Lua CJSON](http://www.kyne.com.au/~mark/software/lua-cjson.php) -- for stats
+<https://www.twitch.tv/moonscript>
 
-# how to run
 
-    moon main.moon
+# How to run
+
+    moonc .
+    luajit main.lua
 
 In order to have the bot identify with server create a file
 called `config.lua` and make it return a table with password field:
