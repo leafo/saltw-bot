@@ -67,6 +67,8 @@ class HotLoader
     mod = fn!
 
     old_mod = package.loaded[module_name]
+    return nil, "module hasn't been loaded yet" unless old_mod
+
     @classes_by_modules_name[module_name][old_mod] = true
     package.loaded[module_name] = mod
 
