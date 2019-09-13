@@ -1,8 +1,9 @@
 
 import bind from require "saltw.util"
 
+
 MESSAGES = {
-  "!today": "I am working on my twitch bot written in MoonScript. Adding class hotreloading for development. yes it still works #{os.time!}"
+  "!today": "I am working on my twitch bot written in MoonScript. Adding twitch api communication"
   "!drink": "Usually iced tea, but sometimes water"
   "!linux": "I use Arch Linux, AwesomeWM, Vim"
   "!language": "I typically code in MoonScript (which compiles to Lua), but also sometimes JavaScript"
