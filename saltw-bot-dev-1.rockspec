@@ -14,10 +14,15 @@ description = {
 
 dependencies = {
   "lua = 5.1",
-  "lapis",
+  -- "busted", -- just for test
+  -- "moonscript", -- just for test
+
   "ansicolors",
-  "luasocket",
+  "cqueues",
+  "lapis",
   "lua-cjson",
+  "luasocket",
+  "slnunicode",
 }
 
 build = {

@@ -17,11 +17,9 @@ jobs:
 
     - name: build
       run: |
-        luarocks install lapis
-        luarocks install cqueues
-        luarocks install lua-cjson
         luarocks install moonscript
         luarocks install busted
+        luarocks make
 
     - name: test
       run: |
