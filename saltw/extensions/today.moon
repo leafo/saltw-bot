@@ -47,6 +47,13 @@ class Today extends require "saltw.extension"
 
     types.one_of(config.admin_names) name
 
+  get_twitch: =>
+    unless @twitch
+      Twitch = require "saltw.clients.twitch"
+      @twitch = Twitch "moonscript"
+
+    @twitch
+
   make_it_rain: (message) =>
     unless @is_admin message.name
       return
@@ -55,8 +62,7 @@ class Today extends require "saltw.extension"
 
     return unless channel\match "^#"
 
-    Twitch = require "saltw.clients.twitch"
-    twitch = Twitch "moonscript"
+    twitch = @get_twitch!
 
     chatters = twitch\get_chatters!
     return unless chatters
@@ -76,6 +82,18 @@ class Today extends require "saltw.extension"
 
     "bleedPurple bleedPurple It's raining #{points} point(s) SMOrc"
 
+  uptime: =>
+    twitch = @get_twitch!
+    stream = twitch\get_current_stream!
+    unless stream and stream.started_at
+      return "Is the stream running?"
+
+    date = require "date"
+    sec = date.diff(date(true), date(stream.started_at))\spanseconds!
+
+    import time_ago_in_words from require "lapis.util"
+    "Uptime: #{time_ago_in_words stream.started_at, 2, ""}"
+
   message_handler: (e, irc, message) =>
     msg = switch message.message
       when "!list", "!help", "!commands"
@@ -83,6 +101,8 @@ class Today extends require "saltw.extension"
         table.sort keys
         keys = table.concat keys, " "
         "Available commands: #{keys}"
+      when "!uptime"
+        @uptime!
       when "!makeitrain"
         @make_it_rain message
       else
