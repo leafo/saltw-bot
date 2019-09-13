@@ -8,8 +8,7 @@ loop\wrap ->
 
 loop\wrap ->
   import start_server from require "lapis.cmd.cqueues"
-  App = require "saltw.web.app"
-  start_server App
+  start_server "saltw.web.app"
 
 loop\wrap ->
   HotLoader = require "saltw.hot_loader"

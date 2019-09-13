@@ -52,7 +52,7 @@ class HotLoader
     module_name, err = @path_to_module full_path
 
     unless module_name
-      returnn nil, err
+      return nil, err
 
     file = io.open full_path, "r"
     return nil, "failed to find file" unless file

@@ -12,7 +12,7 @@ config "twitch", ->
 
   host "localhost"
   port 8081
-  code_cache true
+  code_cache "app_only"
 
   name "bladder_x"
   channels { "#moonscript" }
