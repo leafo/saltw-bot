@@ -15,11 +15,13 @@ class ChannelUser extends Widget
         tr ->
           td "Reason"
           td "Amount"
+          td "When"
 
       tbody ->
         for log in *@channel_user\get_point_logs!
           tr ->
             td log.reason
             td log.amount
+            td log.created_at
 
 
