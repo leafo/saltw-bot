@@ -10,7 +10,5 @@ class Stats extends require "saltw.extension"
     {:name, :channel} = message
 
     return unless channel\match "^#"
-
-    irc.cqueues\wrap ->
-      ChannelUsers\log channel, name, message.message
+    ChannelUsers\log channel, name, message.message
 

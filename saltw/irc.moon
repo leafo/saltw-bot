@@ -100,7 +100,8 @@ class Irc
 
     parse_message = require "saltw.irc.parse_message"
     if message = parse_message line
-      @dispatch\trigger "irc.message", @, message
+      @cqueues\wrap ->
+        @dispatch\trigger "irc.message", @, message
 
   join: (channel) =>
     @socket\write "JOIN #{channel}\r\n"
