@@ -38,6 +38,14 @@ class Today extends require "saltw.extension"
   new: (@irc) =>
     @irc\on "irc.message", bind @, "message_handler"
 
+  is_admin: (name) =>
+    import types from require "tableshape"
+    config = require "saltw.config"
+
+    return false unless config.admin_names
+
+    types.one_of(config.admin_names) name
+
   message_handler: (e, irc, message) =>
     msg = switch message.message
       when "!list", "!help", "!commands"

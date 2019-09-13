@@ -17,6 +17,10 @@ config "twitch", ->
   name "bladder_x"
   channels { "#moonscript" }
 
+  admin_names {
+    "moonscript"
+  }
+
   oauth_token require "pass"
   twitch true
 
