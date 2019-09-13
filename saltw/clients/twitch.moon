@@ -7,7 +7,7 @@ class Twitch
   api_base: "https://api.twitch.tv/helix"
   oauth_base: "https://id.twitch.tv/oauth2"
 
-  new: (@channel) =>
+  new: (@current_stream) =>
 
   get_client_id: =>
     unless @client
@@ -46,6 +46,15 @@ class Twitch
     response = json.decode body
     response, headers
 
+  get_current_stream: =>
+    res, err = @get_streams {
+      user_login: @current_stream
+    }
+
+    return nil, err unless res
+
+    res.data[1]
+
   get_streams: (opts) =>
     @http_request "streams", {
       query: opts
@@ -53,7 +62,7 @@ class Twitch
 
   -- http://tmi.twitch.tv/group/user/moonscript/chatters
   get_chatters: =>
-    response, headers = @http_request "group/user/#{@channel}/chatters", {
+    response, headers = @http_request "group/user/#{@current_stream}/chatters", {
       api_base: @irc_api_base
       auth: false
     }
