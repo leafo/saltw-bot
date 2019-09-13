@@ -6,7 +6,6 @@ socket = require "cqueues.socket"
 import decode_html_entities from require "saltw.util"
 import insert from table
 
-import Reader from require "saltw.socket"
 import Dispatch from require "saltw.dispatch"
 
 log = (...) -> print "+++", ...
@@ -127,13 +126,6 @@ class Irc
   color: (color, msg) =>
     delim = string.char 0x03
     table.concat { delim, colors[color] or color, msg, delim }
--- 
--- if config.stats_url
---   stats2 = require "saltw.misc.stats2"
---   stats = stats2.Stats!
---   event_loop\add_task stats\make_task!
---   irc\add_message_handler stats\make_handler!
--- 
 
 
 { :Irc }
