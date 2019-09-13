@@ -34,7 +34,7 @@ config "twitch", ->
     -- "scramble_vim"
     -- "midi"
     "stats"
-    "today"
+    "commands"
   }
 
 

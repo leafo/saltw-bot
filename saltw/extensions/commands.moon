@@ -35,7 +35,7 @@ MESSAGES = {
 --  !keyboard
 
 
-class Today extends require "saltw.extension"
+class Commands extends require "saltw.extension"
   new: (@irc) =>
     @irc\on "irc.message", bind @, "message_handler"
 
