@@ -30,7 +30,6 @@ class Twitch
       import encode_query_string from require "lapis.util"
       url = "#{url}?#{encode_query_string opts.query}"
 
-    @log_request url
 
     req = assert http_request.new_from_uri url
 
@@ -42,6 +41,7 @@ class Twitch
       unless opts.send_client_id == false
         req.headers\append "client-id", @get_client_id!
 
+    @log_request url
     headers, stream = assert req\go!
 
     body = assert stream\get_body_as_string!
