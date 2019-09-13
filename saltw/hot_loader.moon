@@ -126,7 +126,10 @@ class HotLoader
         return @watch_dir full_path
 
       if is_edit_file
-        assert @on_file_modified full_path, event
+        success, err = @on_file_modified full_path, event
+        unless success
+          io.stderr\write "Failed to reload: #{err}\n"
+
         return
 
 
