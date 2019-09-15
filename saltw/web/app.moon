@@ -45,6 +45,31 @@ class App extends lapis.Application
       }
   }
 
+  [command: "/commands/:command_id"]: capture_errors_json respond_to {
+    before: =>
+      import ChatCommands from require "saltw.models"
+      params = shapes.assert_params @params, {
+        command_id: shapes.db_id
+      }
+
+      @command = assert_error ChatCommands\find(params.command_id), "invalid command"
+
+    POST: =>
+      params = shapes.assert_params @params, {
+        action: types.one_of {
+          "enable", "disable"
+        }
+      }
+
+      switch params.action
+        when "disable"
+          @command\update active: false
+        when "enable"
+          @command\update active: true
+
+      redirect_to: @url_for "commands"
+  }
+
   [speak: "/speak"]: capture_errors_json respond_to {
     GET: =>
       render: true

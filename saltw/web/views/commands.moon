@@ -43,9 +43,19 @@ class Stats extends Widget
               td command.data.response
               td command.used_count
               td command.last_used_at
-              td tostring command.active
-
-
+              td ->
+                details ->
+                  summary tostring command.active
+                  form {
+                    method: "post"
+                    action: @url_for "command", {
+                      command_id: command.id
+                    }
+                  }, ->
+                    if command.active
+                      button name: "action", value: "disable", "Disable"
+                    else
+                      button name: "action", value: "enable", "Enable"
 
 
 
