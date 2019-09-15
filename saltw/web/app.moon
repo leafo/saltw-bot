@@ -16,6 +16,30 @@ class App extends lapis.Application
   "/": =>
     @flow("app")\render_home!
 
+  [speak: "/speak"]: capture_errors_json respond_to {
+    GET: =>
+      render: true
+
+    POST: =>
+      shapes = require "saltw.web.util.shapes"
+      import types from require "tableshape"
+
+      params = shapes.assert_params @params, {
+        message: shapes.truncated_text 255
+        is_action: shapes.empty / false + types.any / true
+      }
+
+      irc = require("saltw.irc.current")
+      if params.is_action
+        irc\me params.message
+      else
+        irc\message params.message
+
+      json: {
+        success: true
+      }
+  }
+
   [channel_user: "/channel-users/:channel_user_id[%d]"]: capture_errors_json respond_to {
     before: =>
       import ChannelUsers from require "saltw.models"

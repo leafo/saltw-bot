@@ -4,7 +4,7 @@ cqueues = require "cqueues"
 loop = assert cqueues.new!
 
 loop\wrap ->
-  Irc loop, require("saltw.config")
+  package.loaded["saltw.irc.current"] = Irc loop, require("saltw.config")
 
 loop\wrap ->
   import start_server from require "lapis.cmd.cqueues"
