@@ -17,12 +17,24 @@ class ChatCommands extends require "saltw.model"
 
   @type_data_shapes: {
     simple: types.shape {
-      reason: types.string
+      response: types.string
     }
 
     callback: types.shape {
       callback: types.string
     }
+  }
+
+  @callback_commands: {
+    list: (irc, message) =>
+      commands = @@list_commands!
+      command_names = [c.command for c in *commands]
+      return unless next command_names
+
+      table.sort command_names
+      command_names = table.concat command_names, " "
+
+      irc\message "Available commands: #{command_names}"
   }
 
   @parse_command: (msg) =>
@@ -75,7 +87,8 @@ class ChatCommands extends require "saltw.model"
         response = assert @data.response, "missing response for simple command"
         irc\message response
       when @@types.callback
-        error "write me"
+        fn = @@callback_commands[@command]
+        fn @, irc, message
       else
         error "unknown type: #{@type}"
 
