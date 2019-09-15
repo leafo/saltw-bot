@@ -3,14 +3,26 @@ db = require "lapis.db"
 import enum from require "lapis.db.model"
 import insert_on_conflict_update from require "saltw.db.helpers"
 
+import types from require "tableshape"
+
 import to_json from require "lapis.util"
 class ChatCommands extends require "saltw.model"
   @timestamp: true
 
   @types: enum {
     simple: 1
-    -- callback: 2
+    callback: 2
     -- alias: 3
+  }
+
+  @type_data_shapes: {
+    simple: types.shape {
+      reason: types.string
+    }
+
+    callback: types.shape {
+      callback: types.string
+    }
   }
 
   @parse_command: (msg) =>
@@ -43,6 +55,9 @@ class ChatCommands extends require "saltw.model"
         (select max(version) from #{db.escape_identifier @table_name!} where command = ?) + 1,
         1)
     ", opts.command
+
+    if data_shape = @type_data_shapes[@types\to_name opts.type]
+      assert data_shape opts.data
 
     opts.data = if type(opts.data) == "table"
       to_json opts.data

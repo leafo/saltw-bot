@@ -28,19 +28,24 @@ class App extends lapis.Application
       render: true
 
     POST: =>
+      import ChatCommands from require "saltw.models"
+
       params = shapes.assert_params @params, {
         command: shapes.limited_text 40
-        response: shapes.limited_text 255
+        type: shapes.db_enum ChatCommands.types
+        response: shapes.empty + shapes.limited_text 255
+        callback: shapes.empty + shapes.limited_text 255
         secret: shapes.empty / false + types.any / true
       }
 
       import ChatCommands from require "saltw.models"
       command = ChatCommands\create {
-        type: "simple"
+        type: params.type
         command: params.command
         secret: params.secret
         data: {
           response: params.response
+          callback: params.callback
         }
       }
 
