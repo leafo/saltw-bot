@@ -13,12 +13,27 @@ class ChatCommands extends require "saltw.model"
     callback: 2
   }
 
+  @list_commands: =>
+    ChatCommands\select "
+      where (command, version) in (
+        select command, max from (select command, max(version) from #{db.escape_identifier @table_name!} group by 1) foo
+      )
+      and active
+    "
+
+  @find_command: (name) =>
+    command = @select "where command = ? order by version desc limit 1", name
+    return nil, "no command" unless command
+    return nil, "command not active" unless command.active
+
+    command
+
   @create: (opts) =>
     opts.type = @types\for_db opts.type or "simple"
 
     opts.version = db.raw db.interpolate_query "
       coalesce(
-        (select max(version) from chat_commands where command = ?) + 1,
+        (select max(version) from #{db.escape_identifier @table_name!} where command = ?) + 1,
         1)
     ", opts.command
 
