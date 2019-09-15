@@ -16,6 +16,10 @@ class Layout extends html.Widget
             color: #6277c3;
           }
 
+          fieldset {
+            border: 1px solid #dadada;
+          }
+
           header.global_header {
             background: #99d6ff;
             color: black;
@@ -89,6 +93,7 @@ class Layout extends html.Widget
             ul ->
               li -> @nav_link "stats", "Stats"
               li -> @nav_link "speak", "Speak"
+              li -> @nav_link "commands", "Commands"
 
         main ->
           @content_for "inner"

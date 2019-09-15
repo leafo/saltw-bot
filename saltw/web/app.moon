@@ -4,6 +4,9 @@ import respond_to, capture_errors_json, assert_error from require "lapis.applica
 
 csrf = require "lapis.csrf"
 
+shapes = require "saltw.web.util.shapes"
+import types from require "tableshape"
+
 class App extends lapis.Application
   views_prefix: "saltw.web.views"
   flows_prefix: "saltw.web.flows"
@@ -16,14 +19,37 @@ class App extends lapis.Application
   [stats: "/"]: =>
     @flow("app")\render_home!
 
+  [commands: "/commands"]: capture_errors_json respond_to {
+    GET: =>
+      import ChatCommands from require "saltw.models"
+      @chat_commands = ChatCommands\select "order by created_at desc"
+      render: true
+
+    POST: =>
+      params = shapes.assert_params @params, {
+        command: shapes.limited_text 40
+        response: shapes.limited_text 255
+      }
+
+      import ChatCommands from require "saltw.models"
+      command = ChatCommands\create {
+        type: "simple"
+        command: params.command
+        data: {
+          response: params.response
+        }
+      }
+
+      json: {
+        :command
+      }
+  }
+
   [speak: "/speak"]: capture_errors_json respond_to {
     GET: =>
       render: true
 
     POST: =>
-      shapes = require "saltw.web.util.shapes"
-      import types from require "tableshape"
-
       params = shapes.assert_params @params, {
         message: shapes.limited_text 255
         is_action: shapes.empty / false + types.any / true

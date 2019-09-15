@@ -47,4 +47,24 @@ import add_column, create_index, drop_index, drop_column, create_table from sche
 
     add_column "channel_users", "points_count", integer default: 0
 
+  =>
+    create_table "chat_commands", {
+      {"id", serial}
+      {"command", text}
+      {"version", integer}
+      {"active", boolean default: true}
+      {"type", enum}
+
+      {"data", "json not null"}
+
+      {"used_count", integer default: 0}
+      {"last_used_at", time null: true}
+
+      {"created_at", time}
+      {"updated_at", time}
+
+      "PRIMARY KEY(id)"
+    }
+
+    create_index "chat_commands", "command", "version", unique: true
 }
