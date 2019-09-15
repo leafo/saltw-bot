@@ -15,7 +15,7 @@ class Stats extends Widget
 
         label ->
           div class: "label", "Response"
-          input type: "text", name: "response", required: true
+          textarea name: "response", required: true
 
         div class: "buttons", ->
           button "Submit"

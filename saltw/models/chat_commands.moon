@@ -9,7 +9,8 @@ class ChatCommands extends require "saltw.model"
 
   @types: enum {
     simple: 1
-    callback: 2
+    -- callback: 2
+    -- alias: 3
   }
 
   @parse_command: (msg) =>
@@ -45,6 +46,11 @@ class ChatCommands extends require "saltw.model"
     super opts
 
   run_command: (irc, message) =>
+    @update {
+      used_count: db.raw "used_count + 1"
+      last_used_at: db.raw "date_trunc('second', now() at time zone 'utc')"
+    }, timestamp: false
+
     switch @type
       when @@types.simple
         response = assert @data.response, "missing response for simple command"

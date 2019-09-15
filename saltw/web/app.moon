@@ -40,9 +40,7 @@ class App extends lapis.Application
         }
       }
 
-      json: {
-        :command
-      }
+      redirect_to: @url_for "commands"
   }
 
   [command: "/commands/:command_id"]: capture_errors_json respond_to {
