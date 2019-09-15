@@ -67,4 +67,7 @@ import add_column, create_index, drop_index, drop_column, create_table from sche
     }
 
     create_index "chat_commands", "command", "version", unique: true
+
+  =>
+    add_column "chat_commands", "secret", boolean default: false
 }

@@ -18,12 +18,13 @@ class ChatCommands extends require "saltw.model"
     if command
       command\lower!
 
+  -- lists active, non-secret commands (fetching latest version)
   @list_commands: =>
     ChatCommands\select "
       where (command, version) in (
         select command, max from (select command, max(version) from #{db.escape_identifier @table_name!} group by 1) foo
       )
-      and active
+      and active and not secret
     "
 
   @find_command: (name) =>
