@@ -105,9 +105,12 @@ class App extends lapis.Application
     POST: =>
       csrf.assert_token @
 
-      amount = assert tonumber(@params.amount), "invalid number"
+      params = shapes.assert_params @params, {
+        amount: shapes.number
+        reason: shapes.limited_text 255
+      }
 
-      @channel_user\give_point @params.reason, amount
+      @channel_user\give_point params.reason, params.amount
 
       redirect_to: @url_for @channel_user
   }
