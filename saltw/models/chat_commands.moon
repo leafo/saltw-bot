@@ -25,60 +25,6 @@ class ChatCommands extends require "saltw.model"
     }
   }
 
-  @callback_commands: {
-    -- TODO: add aliases "!help", "!commands"
-    list: (irc, message) =>
-      commands = @@list_commands!
-      command_names = [c.command for c in *commands]
-      return unless next command_names
-
-      table.sort command_names
-      command_names = table.concat command_names, " "
-
-      irc\message "Available commands: #{command_names}"
-
-    uptime: (irc, message) =>
-      twitch = @@get_twitch!
-
-      stream = twitch\get_current_stream!
-      unless stream and stream.started_at
-        return "Is the stream running?"
-
-      date = require "date"
-      sec = date.diff(date(true), date(stream.started_at))\spanseconds!
-
-      import time_ago_in_words from require "lapis.util"
-      irc\message "Uptime: #{time_ago_in_words stream.started_at, 2, ""}"
-
-    makeitrain: (irc, message) =>
-      unless @@is_admin message.name
-        return
-
-      {:channel} = message
-
-      return unless channel\match "^#"
-
-      twitch = @@get_twitch!
-
-      chatters = twitch\get_chatters!
-      return unless chatters
-
-      points = 0
-
-      for name in *chatters.viewers
-        import ChannelUsers from require "saltw.models"
-        cu = ChannelUsers\find {
-          :channel
-          :name
-        }
-
-        if cu
-          cu\give_point "!makeitrain", 1
-          points += 1
-
-      irc\message "bleedPurple bleedPurple It's raining #{points} point(s) SMOrc"
-  }
-
   @parse_command: (msg) =>
     command = msg\match "^!([^%s]+)"
     if command
@@ -144,8 +90,10 @@ class ChatCommands extends require "saltw.model"
         response = assert @data.response, "missing response for simple command"
         irc\message response
       when @@types.callback
-        fn = @@callback_commands[@command]
-        if fn
+        success, fn = pcall ->
+          require "saltw.extensions.commands.#{@command}"
+
+        if success
           fn @, irc, message
         else
           print "WARNING: callback command doesn't exist: #{@command}"
