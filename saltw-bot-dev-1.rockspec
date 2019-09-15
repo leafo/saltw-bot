@@ -23,6 +23,7 @@ dependencies = {
   "lua-cjson",
   "luasocket",
   "slnunicode",
+  "tableshape",
 }
 
 build = {
