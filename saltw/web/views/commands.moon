@@ -22,7 +22,11 @@ class Stats extends Widget
 
         label ->
           div class: "label", "Response"
-          textarea name: "response", required: true
+          textarea {
+            style: "width: 100%; max-width: 400px; height: 80px;"
+            name: "response"
+            required: true
+          }
 
         div class: "buttons", ->
           button "Submit"
@@ -37,8 +41,8 @@ class Stats extends Widget
             td "version"
             td "type"
             td "response"
-            td "used_count"
-            td "last_used_at"
+            td "used"
+            td "last used"
             td "active"
 
         tbody ->

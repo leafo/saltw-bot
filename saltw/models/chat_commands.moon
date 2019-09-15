@@ -14,7 +14,9 @@ class ChatCommands extends require "saltw.model"
   }
 
   @parse_command: (msg) =>
-    msg\match "!([^%s]+)"
+    command = msg\match "^!([^%s]+)"
+    if command
+      command\lower!
 
   @list_commands: =>
     ChatCommands\select "
@@ -32,6 +34,7 @@ class ChatCommands extends require "saltw.model"
     command
 
   @create: (opts) =>
+    opts.command = opts.command\lower!
     opts.type = @types\for_db opts.type or "simple"
 
     opts.version = db.raw db.interpolate_query "

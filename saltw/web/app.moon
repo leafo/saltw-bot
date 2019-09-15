@@ -107,9 +107,7 @@ class App extends lapis.Application
 
       @channel_user\give_point @params.reason, amount
 
-      json: {
-        @channel_user
-      }
+      redirect_to: @url_for @channel_user
   }
 
 
