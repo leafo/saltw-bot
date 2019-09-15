@@ -8,7 +8,10 @@ class ChannelUsers extends require "saltw.model"
   @timestamp: true
 
   @relations: {
-    {"point_logs", has_many: "ChannelUserPointLogs"}
+    {"point_logs",
+      has_many: "ChannelUserPointLogs"
+      order: "created_at desc"
+    }
   }
 
   @log: (channel, user, message) =>
