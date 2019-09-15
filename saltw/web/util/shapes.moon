@@ -43,6 +43,9 @@ db_enum = (e) ->
 truncated_text = (len) ->
   trimmed_text * types.string\length(1,len)\on_repair (s) -> s\sub 1, len
 
+limited_text = (len) ->
+  trimmed_text * types.string\length(1,len)
+
 params = (shape) ->
   (p) ->
     local errors
@@ -89,4 +92,4 @@ difference = (update, source) ->
   assert types.shape(s, open: true) source
 
 
-{:trimmed_text, :empty, :integer, :number, :truncated_text, :params, :assert_params, :db_nullable, :db_id, :db_enum, :difference}
+{:trimmed_text, :empty, :integer, :number, :truncated_text, :params, :assert_params, :db_nullable, :db_id, :db_enum, :difference, :limited_text}

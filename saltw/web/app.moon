@@ -25,7 +25,7 @@ class App extends lapis.Application
       import types from require "tableshape"
 
       params = shapes.assert_params @params, {
-        message: shapes.truncated_text 255
+        message: shapes.limited_text 255
         is_action: shapes.empty / false + types.any / true
       }
 
