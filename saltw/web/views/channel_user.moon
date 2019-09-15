@@ -4,6 +4,9 @@ class ChannelUser extends Widget
   content: =>
     h1 @channel_user.name
 
+    p ->
+      a href: @url_for("stats"), "Back to stats"
+
     element "table", border: 1, ->
       thead ->
         tr ->
