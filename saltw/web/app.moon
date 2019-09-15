@@ -13,7 +13,7 @@ class App extends lapis.Application
     csrf = require "lapis.csrf"
     @csrf_token = csrf.generate_token @
 
-  "/": =>
+  [stats: "/"]: =>
     @flow("app")\render_home!
 
   [speak: "/speak"]: capture_errors_json respond_to {
