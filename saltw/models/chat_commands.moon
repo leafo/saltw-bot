@@ -26,6 +26,7 @@ class ChatCommands extends require "saltw.model"
   }
 
   @callback_commands: {
+    -- TODO: add aliases "!help", "!commands"
     list: (irc, message) =>
       commands = @@list_commands!
       command_names = [c.command for c in *commands]
@@ -35,6 +36,47 @@ class ChatCommands extends require "saltw.model"
       command_names = table.concat command_names, " "
 
       irc\message "Available commands: #{command_names}"
+
+    uptime: (irc, message) =>
+      twitch = @@get_twitch!
+
+      stream = twitch\get_current_stream!
+      unless stream and stream.started_at
+        return "Is the stream running?"
+
+      date = require "date"
+      sec = date.diff(date(true), date(stream.started_at))\spanseconds!
+
+      import time_ago_in_words from require "lapis.util"
+      irc\message "Uptime: #{time_ago_in_words stream.started_at, 2, ""}"
+
+    makeitrain: (irc, message) =>
+      unless @@is_admin message.name
+        return
+
+      {:channel} = message
+
+      return unless channel\match "^#"
+
+      twitch = @@get_twitch!
+
+      chatters = twitch\get_chatters!
+      return unless chatters
+
+      points = 0
+
+      for name in *chatters.viewers
+        import ChannelUsers from require "saltw.models"
+        cu = ChannelUsers\find {
+          :channel
+          :name
+        }
+
+        if cu
+          cu\give_point "!makeitrain", 1
+          points += 1
+
+      irc\message "bleedPurple bleedPurple It's raining #{points} point(s) SMOrc"
   }
 
   @parse_command: (msg) =>
@@ -57,6 +99,21 @@ class ChatCommands extends require "saltw.model"
     return nil, "command not active" unless command.active
 
     command
+
+  @get_twitch: =>
+    unless @twitch
+      Twitch = require "saltw.clients.twitch"
+      @twitch = Twitch "moonscript"
+
+    @twitch
+
+  @is_admin: (name) =>
+    import types from require "tableshape"
+    config = require "saltw.config"
+
+    return false unless config.admin_names
+
+    types.one_of(config.admin_names) name
 
   @create: (opts) =>
     opts.command = opts.command\lower!
@@ -88,7 +145,10 @@ class ChatCommands extends require "saltw.model"
         irc\message response
       when @@types.callback
         fn = @@callback_commands[@command]
-        fn @, irc, message
+        if fn
+          fn @, irc, message
+        else
+          print "WARNING: callback command doesn't exist: #{@command}"
       else
         error "unknown type: #{@type}"
 
