@@ -98,6 +98,17 @@ class HotLoader
     for k, v in pairs new_class.__base
       old_class.__base[k] = v
 
+    keys = for k,v in pairs old_class
+      continue if k\match "^__"
+      k
+
+    for key in *keys
+      old_class[key] = nil
+
+    for k,v in pairs new_class
+      continue if k\match "^__"
+      old_class[k] = v
+
   start: =>
     @handle = inotify.init {
       blocking: false
