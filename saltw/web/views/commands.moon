@@ -3,16 +3,26 @@ import Widget from require "lapis.html"
 import ChatCommands from require "saltw.models"
 
 class Stats extends Widget
-  render_secret_toggle: =>
+  render_secret_toggle: (editing) =>
     div ->
       label ->
-        input type: "checkbox", name: "secret"
+        input {
+          type: "checkbox"
+          name: "secret"
+          checked: editing and editing.secret
+        }
         text " Secret"
 
-  render_command_name_input: =>
+  render_command_name_input: (editing) =>
     label ->
       div class: "label", "Command"
-      input type: "text", list: "command_names", name: "command", required: true
+      input {
+        type: "text"
+        list: "command_names"
+        name: "command"
+        required: true
+        value: editing and editing.command
+      }
 
       command_names = {}
       datalist id: "command_names", ->
@@ -22,51 +32,69 @@ class Stats extends Widget
           option value: command.command
 
   render_simple_command_form: =>
-    form method: "post", ->
-      input type: "hidden", name: "type", value: "simple"
-
-      @render_command_name_input!
-      @render_secret_toggle!
-
-      label ->
-        div class: "label", "Response"
-        textarea {
-          style: "width: 100%; max-width: 400px; height: 80px;"
-          name: "response"
-          required: true
-        }
-
-      div class: "buttons", ->
-        button "Submit"
-
-  render_callback_command_form: =>
-    form method: "post", ->
-      input type: "hidden", name: "type", value: "callback"
-
-      @render_command_name_input!
-      @render_secret_toggle!
-
-      label ->
-        div class: "label", "callback"
-        input type: "type", name: "callback"
-
-      div class: "buttons", ->
-        button "Submit"
-
-  content: =>
-    h1 "Commands"
+    editing = if @edit_command and @edit_command\is_type_simple!
+      @edit_command
 
     fieldset ->
       legend "create command"
-      @render_simple_command_form!
 
+      form method: "post", ->
+        input type: "hidden", name: "type", value: "simple"
 
-    details ->
+        @render_command_name_input editing
+        @render_secret_toggle editing
+
+        label ->
+          div class: "label", "Response"
+          textarea {
+            style: "width: 100%; max-width: 400px; height: 80px;"
+            name: "response"
+            required: true
+          }, editing and editing.data.response
+
+        div class: "buttons", ->
+          button "Submit"
+
+  render_callback_command_form: =>
+    editing = if @edit_command and @edit_command\is_type_callback!
+      @edit_command
+
+    details {
+      open: not not editing
+    }, ->
       summary "callbacks commands..."
 
       fieldset ->
         legend "create callback command"
-        @render_callback_command_form!
+
+        form method: "post", ->
+          input type: "hidden", name: "type", value: "callback"
+
+          @render_command_name_input editing
+          @render_secret_toggle editing
+
+          label ->
+            div class: "label", "callback"
+            input type: "type", name: "callback", value: editing and editing.data.callback
+
+          div class: "buttons", ->
+            button "Submit"
+
+  content: =>
+    h1 "Commands"
+    if @edit_command
+      p ->
+        strong ->
+          text "Editing "
+          text @edit_command.command
+          text ". "
+          a {
+            href: @url_for "commands"
+          }, "clear"
+
+    @render_simple_command_form!
+
+    @render_callback_command_form!
 
     if next @chat_commands
       h2 "Commands"
@@ -86,7 +114,10 @@ class Stats extends Widget
         tbody ->
           for command in *@chat_commands
             tr ->
-              td command.command
+              td ->
+                a {
+                  href: @url_for("commands", nil, command_id: command.id)
+                }, command.command
               td command.version
               td ChatCommands.types\to_name command.type
               td ->

@@ -25,6 +25,15 @@ class App extends lapis.Application
       @chat_commands = ChatCommands\select "
         order by created_at desc
       "
+
+      import ChatCommands from require "saltw.models"
+      params = shapes.assert_params @params, {
+        command_id: shapes.empty + shapes.db_id
+      }
+
+      @edit_command = if params.command_id
+        ChatCommands\find(params.command_id), "invalid command"
+
       render: true
 
     POST: =>

@@ -92,5 +92,8 @@ class ChatCommands extends require "saltw.model"
       else
         error "unknown type: #{@type}"
 
+  is_type_simple: =>
+    @type == @@types.simple
 
-
+  is_type_callback: =>
+    @type == @@types.callback
