@@ -59,7 +59,7 @@ class App extends lapis.Application
     POST: =>
       params = shapes.assert_params @params, {
         action: types.one_of {
-          "enable", "disable"
+          "enable", "disable", "delete"
         }
       }
 
@@ -68,6 +68,9 @@ class App extends lapis.Application
           @command\update active: false
         when "enable"
           @command\update active: true
+        when "delete"
+          assert_error @params.confirm, "click confirm"
+          @command\delete!
 
       redirect_to: @url_for "commands"
   }

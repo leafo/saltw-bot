@@ -68,5 +68,10 @@ class Stats extends Widget
                     else
                       button name: "action", value: "enable", "Enable"
 
+                    div ->
+                      nobr ->
+                        input type: "checkbox", name: "confirm"
+                        text " "
+                        button name: "action", value: "delete", "delete"
 
 
