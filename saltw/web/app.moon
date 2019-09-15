@@ -22,7 +22,9 @@ class App extends lapis.Application
   [commands: "/commands"]: capture_errors_json respond_to {
     GET: =>
       import ChatCommands from require "saltw.models"
-      @chat_commands = ChatCommands\select "order by created_at desc"
+      @chat_commands = ChatCommands\select "
+        order by created_at desc
+      "
       render: true
 
     POST: =>

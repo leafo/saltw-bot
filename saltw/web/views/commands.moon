@@ -11,7 +11,14 @@ class Stats extends Widget
       form method: "post", ->
         label ->
           div class: "label", "Command"
-          input type: "text", name: "command", required: true
+          input type: "text", list: "command_names", name: "command", required: true
+
+          command_names = {}
+          datalist id: "command_names", ->
+            for command in *@chat_commands
+              continue if command_names[command.command]
+              command_names[command.command] = true
+              option value: command.command
 
         label ->
           div class: "label", "Response"
