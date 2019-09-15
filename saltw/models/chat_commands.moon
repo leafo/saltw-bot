@@ -4,7 +4,6 @@ import enum from require "lapis.db.model"
 import insert_on_conflict_update from require "saltw.db.helpers"
 
 import to_json from require "lapis.util"
-
 class ChatCommands extends require "saltw.model"
   @timestamp: true
 
@@ -12,6 +11,9 @@ class ChatCommands extends require "saltw.model"
     simple: 1
     callback: 2
   }
+
+  @parse_command: (msg) =>
+    msg\match "!([^%s]+)"
 
   @list_commands: =>
     ChatCommands\select "
@@ -22,7 +24,7 @@ class ChatCommands extends require "saltw.model"
     "
 
   @find_command: (name) =>
-    command = @select "where command = ? order by version desc limit 1", name
+    command = unpack @select "where command = ? order by version desc limit 1", name
     return nil, "no command" unless command
     return nil, "command not active" unless command.active
 
@@ -41,5 +43,16 @@ class ChatCommands extends require "saltw.model"
       to_json opts.data
 
     super opts
+
+  run_command: (irc, message) =>
+    switch @type
+      when @@types.simple
+        response = assert @data.response, "missing response for simple command"
+        irc\message response
+      when @@types.callback
+        error "write me"
+      else
+        error "unknown type: #{@type}"
+
 
 

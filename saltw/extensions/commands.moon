@@ -95,6 +95,15 @@ class Commands extends require "saltw.extension"
     "Uptime: #{time_ago_in_words stream.started_at, 2, ""}"
 
   message_handler: (e, irc, message) =>
+    import ChatCommands from require "saltw.models"
+    command_name = ChatCommands\parse_command message.message
+    return unless command_name
+    command = ChatCommands\find_command command_name
+    return unless command
+
+    command\run_command irc, message
+
+  message_handler_old: (e, irc, message) =>
     msg = switch message.message
       when "!list", "!help", "!commands"
         keys = [key for key in pairs MESSAGES]
