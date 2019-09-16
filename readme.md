@@ -1,8 +1,6 @@
 An irc/Twitch bot written in MoonScript using [cqueues](https://github.com/wahern/cqueues).
 
-# Live developed on Twitch
-
-<https://www.twitch.tv/moonscript>
+[![](http://leafo.net/dump/twitch-banner.svg)](https://www.twitch.tv/moonscript)
 
 
 # How to run
