@@ -105,9 +105,7 @@ class App extends lapis.Application
       else
         irc\message params.message
 
-      json: {
-        success: true
-      }
+      redirect_to: @url_for "speak"
   }
 
   [channel_user: "/channel-users/:channel_user_id[%d]"]: capture_errors_json respond_to {
