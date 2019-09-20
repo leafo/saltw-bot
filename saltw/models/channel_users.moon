@@ -15,6 +15,8 @@ class ChannelUsers extends require "saltw.model"
   }
 
   @log: (channel, user, message) =>
+    table_name = db.escape_identifier ChannelUsers\table_name!
+
     insert_on_conflict_update @, {
       [{
         column: "name"
@@ -27,8 +29,13 @@ class ChannelUsers extends require "saltw.model"
       random_message: message
       last_seen_at: db.raw "date_trunc('second', now() at time zone 'utc')"
     }, {
-      messages_count: db.raw "#{db.escape_identifier ChannelUsers\table_name!}.messages_count + excluded.messages_count"
-      random_message: message
+      messages_count: db.raw "#{table_name}.messages_count + excluded.messages_count"
+      random_message: db.raw "(
+        case
+          when random() < greatest(0.01, 1.0 / (#{table_name}.messages_count + 1)) then excluded.random_message
+          else #{table_name}.random_message
+        end
+      )"
       last_seen_at: db.raw "excluded.last_seen_at"
     }
 
