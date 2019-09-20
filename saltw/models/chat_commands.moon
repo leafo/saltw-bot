@@ -63,6 +63,8 @@ class ChatCommands extends require "saltw.model"
 
   @create: (opts) =>
     opts.command = opts.command\lower!
+    opts.command = opts.command\gsub "^!+", ""
+
     opts.type = @types\for_db opts.type or "simple"
 
     opts.version = db.raw db.interpolate_query "
