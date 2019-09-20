@@ -64,7 +64,7 @@ class HotLoader
     return nil, "failed to read file" unless file_contents
 
     moonscript = require "moonscript.base"
-    fn, err = moonscript.loadstring file_contents
+    fn, err = moonscript.loadstring file_contents, "@#{full_path}"
     -- TODO: handle error without crashing when there is a compile error
     return nil, err unless fn
     mod = fn!
