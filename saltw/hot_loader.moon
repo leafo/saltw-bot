@@ -7,6 +7,9 @@ import types from require "tableshape"
 
 is_class = types.shape { __base: types.table }, open: true
 
+is_plain_table = types.table * types.custom (t) ->
+  getmetatable(t) == nil
+
 class HotLoader
   new: =>
     @wds = {}
@@ -70,24 +73,35 @@ class HotLoader
     return nil, "module hasn't been loaded yet" unless old_mod
 
     @classes_by_modules_name[module_name][old_mod] = true
+
+    if is_plain_table old_mod
+      for k, cls in pairs old_mod
+        if is_class cls
+          @classes_by_modules_name["#{module_name}::#{k}"][cls] = true
+
     package.loaded[module_name] = mod
 
     -- two types of modules:
     -- 1. a class
     -- 2. a table of things, including class(es)
 
+    count = 0
+
     if is_class(mod) and is_class(old_mod)
       -- handle as single class
-      count = 0
       for old_cls in pairs @classes_by_modules_name[module_name]
-        count +=1
+        count += 1
         @reload_class old_cls, mod
-
-      print "Reloaded #{count} class objects for #{module_name}"
+    elseif is_plain_table(mod) and is_plain_table(old_mod)
+      for k, new_cls in pairs mod
+        for old_cls in pairs @classes_by_modules_name["#{module_name}::#{k}"]
+          count += 1
+          @reload_class old_cls, new_cls
     else
       -- handle each item individually..
       print "Warning: unhandled module reload"
 
+    print "Reloaded #{count} class objects for #{module_name}"
     true
 
   reload_class: (old_class, new_class) =>
