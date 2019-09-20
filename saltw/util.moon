@@ -18,4 +18,25 @@ decode_html_entities = (str) ->
 bind = (obj, method_name) ->
   (...) -> obj[method_name] obj, ...
 
-{ :decode_html_entities, :bind }
+print_error = (header, err, trace) ->
+  colors = require "ansicolors"
+
+  colors = require "ansicolors"
+  print ""
+  print colors "%{bright}%{red}#{header}"
+  print colors.noReset"%{yellow}" ..  err .. colors"%{reset}"
+  if trace
+    print trace
+  print ""
+
+safe_call = (header, fn) ->
+  local err, trace
+
+  success = xpcall fn, (_err) ->
+    err = _err
+    trace = debug.traceback "", 2
+
+  unless success
+    print_error header, err, trace
+
+{ :decode_html_entities, :bind, :print_error, :safe_call }

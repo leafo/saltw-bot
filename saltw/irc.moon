@@ -101,7 +101,9 @@ class Irc
     parse_message = require "saltw.irc.parse_message"
     if message = parse_message line
       @cqueues\wrap ->
-        @dispatch\trigger "irc.message", @, message
+        import safe_call from require "saltw.util"
+        safe_call "Message handler failed:", ->
+          @dispatch\trigger "irc.message", @, message
 
   join: (channel) =>
     @socket\write "JOIN #{channel}\r\n"
