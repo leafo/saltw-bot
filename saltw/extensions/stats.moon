@@ -1,4 +1,4 @@
-import ChannelUsers from require "saltw.models"
+import ChannelUsers, ChannelUserMessages from require "saltw.models"
 
 import bind from require "saltw.util"
 
@@ -11,4 +11,5 @@ class Stats extends require "saltw.extension"
 
     return unless channel\match "^#"
     ChannelUsers\log channel, name, message.message
+    ChannelUserMessages\log message
 

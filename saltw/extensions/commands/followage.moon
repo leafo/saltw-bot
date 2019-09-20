@@ -3,11 +3,7 @@ import ChatCommands from require "saltw.models"
 
 date = require "date"
 
-find_tag = (tags, name) ->
-  return unless tags
-  for tag in *tags
-    if tag.key == name
-      return tag.value
+import find_tag from require "saltw.twitch"
 
 (irc, message) =>
   twitch = ChatCommands\get_twitch!

@@ -70,4 +70,26 @@ import add_column, create_index, drop_index, drop_column, create_table from sche
 
   =>
     add_column "chat_commands", "secret", boolean default: false
+
+  =>
+    create_table "channel_user_messages", {
+      {"id", serial}
+
+      {"channel", text}
+      {"name", text}
+
+      {"user_id", text null: true}
+
+      {"message", text}
+
+      {"data", "json"}
+
+      {"created_at", time}
+      {"updated_at", time}
+
+      "PRIMARY KEY(id)"
+    }
+
+    create_index "channel_user_messages", "channel", "created_at"
+
 }
