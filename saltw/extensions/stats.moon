@@ -11,5 +11,9 @@ class Stats extends require "saltw.extension"
 
     return unless channel\match "^#"
     ChannelUsers\log channel, name, message.message
-    ChannelUserMessages\log message
+
+    log = ChannelUserMessages\log message
+
+    if amount = log\get_tag "bits"
+      @irc\message "Thank for bit×#{amount} #{message.name}"
 
