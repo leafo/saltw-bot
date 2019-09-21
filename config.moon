@@ -35,6 +35,7 @@ config "twitch", ->
     -- "midi"
     "stats"
     "commands"
+    "twitch"
   }
 
 
