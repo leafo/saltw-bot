@@ -4,6 +4,8 @@ import respond_to, capture_errors_json, assert_error from require "lapis.applica
 
 csrf = require "lapis.csrf"
 
+db = require "lapis.db"
+
 shapes = require "saltw.web.util.shapes"
 import types from require "tableshape"
 
@@ -129,5 +131,49 @@ class App extends lapis.Application
 
       redirect_to: @url_for @channel_user
   }
+
+  [follows: "/follows"]: respond_to {
+    GET: =>
+      import ChannelFollows from require "saltw.models"
+      @channel_follows = ChannelFollows\select "order by followed_at desc"
+
+      render: true
+
+    POST: capture_errors_json =>
+      import ChannelFollows from require "saltw.models"
+      csrf.assert_token @
+
+      switch @params.action
+        when "truncate"
+          db.query "truncate #{db.escape_identifier ChannelFollows\table_name!}"
+
+      json: {
+        success: true
+      }
+  }
+
+  [twitch_user: "/user/:user_id"]: =>
+    import ChatCommands from require "saltw.models"
+    twitch = ChatCommands\get_twitch!
+
+    user = twitch\get_user id: @params.user_id
+    follow = twitch\get_user_follows {
+      from_id: @params.user_id
+      to_id: "60887114"
+    }
+
+    json: {
+      user: unpack user.data
+      follow: unpack follow.data
+    }
+
+  [chat: "/chat"]: =>
+    import ChannelUserMessages from require "saltw.models"
+    @messages = ChannelUserMessages\select "order by created_at desc limit 40"
+    render: true
+
+  [chat: "/empty"]: =>
+    render: true
+    import ChannelUserMessages from require "saltw.models"
 
 

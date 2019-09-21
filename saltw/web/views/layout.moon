@@ -94,6 +94,7 @@ class Layout extends html.Widget
               li -> @nav_link "stats", "Stats"
               li -> @nav_link "speak", "Speak"
               li -> @nav_link "commands", "Commands"
+              li -> @nav_link "follows", "Follows"
 
         main ->
           @content_for "inner"
