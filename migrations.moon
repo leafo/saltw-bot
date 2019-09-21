@@ -92,4 +92,21 @@ import add_column, create_index, drop_index, drop_column, create_table from sche
 
     create_index "channel_user_messages", "channel", "created_at"
 
+  =>
+    create_table "channel_follows", {
+      {"id", serial}
+      {"channel", text}
+      {"user_id", text}
+
+      {"type", enum}
+
+      {"followed_at", time}
+
+      {"created_at", time}
+      {"updated_at", time}
+
+      "PRIMARY KEY(id)"
+    }
+
+    create_index "channel_follows", "channel", "user_id", "type", unique: true
 }
