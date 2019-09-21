@@ -72,6 +72,16 @@ class Twitch
       query: opts
     }
 
+  get_user: (opts) =>
+    @http_request "users", {
+      query: opts
+    }
+
+  get_subscriptions: (opts) =>
+    @http_request "subscriptions", {
+      query: opts
+    }
+
   -- http://tmi.twitch.tv/group/user/moonscript/chatters
   get_chatters: =>
     response, headers = @http_request "group/user/#{@current_stream}/chatters", {
