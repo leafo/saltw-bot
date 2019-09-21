@@ -15,5 +15,22 @@ loop\wrap ->
   loader = HotLoader!
   loader\start!
 
-assert loop\loop!
+
+if love
+  time = 0
+  Game = require "saltw.game"
+  game = Game!
+
+  love.load = ->
+    game\load!
+
+  love.update = (dt) ->
+    assert loop\loop 0
+    game\update dt
+
+  love.draw = (dt) ->
+    game\draw!
+
+else
+  assert loop\loop!
 
