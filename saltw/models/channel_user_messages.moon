@@ -19,3 +19,8 @@ class ChannelUserMessages extends require "saltw.model"
       data: db.raw db.escape_literal to_json message.tags
     }
 
+  get_tag: (tag_name) =>
+    import find_tag from require "saltw.twitch"
+    return unless @data
+    find_tag @data, tag_name
+
